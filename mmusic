@@ -1,0 +1,2607 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>mmusic</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700;8..144,800;8..144,900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,0" rel="stylesheet">
+<style>
+  :root {
+    --seed-h: 10;
+    --seed-s: 75%;
+    --md-background: #0d0c0e;
+    --md-surface: #141316;
+    --md-surface-container-low: #18171b;
+    --md-surface-container: #1f1d22;
+    --md-surface-container-high: #29272d;
+    --md-surface-container-highest: #343239;
+    --md-primary: hsl(var(--seed-h), var(--seed-s), 65%);
+    --md-on-primary: hsl(var(--seed-h), var(--seed-s), 12%);
+    --md-primary-container: hsl(var(--seed-h), calc(var(--seed-s) * 0.7), 24%);
+    --md-on-primary-container: hsl(var(--seed-h), var(--seed-s), 92%);
+    --md-on-surface: #f3eff4;
+    --md-on-surface-variant: #9e9aa4;
+    --md-outline-variant: rgba(255, 255, 255, 0.08);
+    --hero-bg-tint: hsl(var(--seed-h), 26%, 15%);
+  }
+
+  [data-amoled="true"] {
+    --md-background: #000000;
+    --md-surface: #080808;
+    --md-surface-container-low: #101012;
+    --md-surface-container: #161618;
+    --md-surface-container-high: #202024;
+    --md-surface-container-highest: #2a2a2e;
+    --hero-bg-tint: #141212;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100dvh;
+    background-color: var(--md-background);
+    color: var(--md-on-surface);
+    font-family: 'Roboto Flex', sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+  body { display: flex; flex-direction: column; }
+
+  .icon {
+    font-family: 'Material Symbols Rounded';
+    font-size: 24px;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .icon.filled { font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24; }
+
+  .app-notice-toast {
+    position: fixed;
+    top: max(14px, env(safe-area-inset-top));
+    left: 16px;
+    right: 16px;
+    max-width: 420px;
+    margin: 0 auto;
+    background: #252229;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 18px;
+    padding: 12px 16px;
+    z-index: 500;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.65);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .app-notice-toast.show { display: flex; }
+
+  .boot-overlay {
+    position: fixed;
+    inset: 0;
+    background: #08080a;
+    color: #ffffff;
+    z-index: 350;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    transition: opacity 0.22s ease;
+  }
+  .boot-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+    display: none;
+  }
+  .boot-spinner {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.14);
+    border-top-color: var(--md-primary);
+    animation: spinLoader 0.8s linear infinite;
+  }
+  @keyframes spinLoader {
+    to { transform: rotate(360deg); }
+  }
+
+  .auth-overlay {
+    position: fixed;
+    inset: 0;
+    background: #08080a;
+    color: #ffffff;
+    z-index: 250;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: max(22px, env(safe-area-inset-top)) 24px max(26px, env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+  .auth-overlay.hidden { display: none; }
+
+  .auth-step {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100%;
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    gap: 18px;
+  }
+  .auth-step.active { display: flex; }
+
+  .welcome-center {
+    margin: auto 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .book-circle-emblem {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .welcome-book-svg { width: 76px; height: 60px; overflow: visible; }
+  .wb-cover { fill: none; stroke: #ffffff; stroke-width: 2.5; stroke-linecap: round; }
+  .wb-page { fill: rgba(255, 255, 255, 0.15); stroke: #ffffff; stroke-width: 2.1; stroke-linejoin: round; }
+  .wb-leaf {
+    fill: #ffffff;
+    stroke: #ffffff;
+    stroke-width: 1.8;
+    transform-origin: 17px 19px;
+    animation: flipPage 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+  @keyframes flipPage {
+    0% { transform: perspective(120px) rotateY(0deg) scaleX(1); }
+    50% { transform: perspective(120px) rotateY(-90deg) scaleX(0.2); }
+    100% { transform: perspective(120px) rotateY(-180deg) scaleX(-1); }
+  }
+
+  .md3-user-avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    flex-shrink: 0;
+  }
+  .md3-user-avatar.style-red { background: linear-gradient(135deg, #b71c1c, #e53935); }
+  .md3-user-avatar.style-black { background: linear-gradient(135deg, #09090b, #27272a); border-color: rgba(255, 255, 255, 0.28); }
+  .md3-user-avatar.style-song { background: linear-gradient(135deg, var(--md-primary-container), var(--md-primary)); color: var(--md-on-primary); }
+  .md3-user-avatar.style-green { background: linear-gradient(135deg, #1b5e20, #43a047); }
+  .md3-user-avatar.style-violet { background: linear-gradient(135deg, #4a148c, #8e24aa); }
+
+  .avatar-style-selector {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 10px 0 16px;
+  }
+  .avatar-style-pill {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #151518;
+    color: #d4d4d8;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .avatar-style-pill.active { background: #ffffff; color: #000000; border-color: #ffffff; }
+
+  .auth-input-box {
+    width: 100%;
+    height: 52px;
+    border-radius: 16px;
+    background: #151518;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .auth-input-box:focus-within {
+    border-color: rgba(255, 255, 255, 0.28);
+  }
+  .auth-input-box input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    min-width: 0;
+  }
+  .auth-input-box input::placeholder { color: #71717a; }
+
+  .input-eye-btn {
+    background: none;
+    border: none;
+    color: #8e8e93;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+  }
+
+  .field-hint {
+    font-size: 11px;
+    color: #8e8e93;
+    text-align: left;
+    margin: -4px 4px 10px;
+    line-height: 1.35;
+  }
+
+  .btn-white-pill {
+    width: 100%;
+    height: 52px;
+    border-radius: 999px;
+    border: none;
+    background: #ffffff;
+    color: #000000;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-white-pill:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-dark-pill {
+    width: 100%;
+    height: 52px;
+    border-radius: 999px;
+    border: 1px solid #242429;
+    background: #0e0e11;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-dark-pill:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: calc(165px + env(safe-area-inset-bottom));
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+    scrollbar-width: none;
+  }
+  main::-webkit-scrollbar { display: none; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .potok-top-section {
+    position: relative;
+    overflow: hidden;
+    padding: max(20px, env(safe-area-inset-top)) 18px 20px;
+    background: linear-gradient(180deg, var(--hero-bg-tint) 0%, var(--md-background) 100%);
+    transition: background 0.4s ease;
+  }
+  .potok-bg-ribbon {
+    position: absolute;
+    right: -30px;
+    top: 15px;
+    width: 340px;
+    height: 290px;
+    pointer-events: none;
+    opacity: 0.16;
+  }
+  .potok-header-bar {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .potok-giant-title { font-size: 46px; font-weight: 900; line-height: 0.96; letter-spacing: -1.4px; color: #ffffff; }
+  .top-bell-btn {
+    width: 42px; height: 42px; border-radius: 21px; border: none;
+    background: transparent; color: #ffffff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .potok-collage-stage { position: relative; z-index: 2; height: 225px; margin-bottom: 12px; }
+  .hero-cover-main {
+    position: absolute; left: 0; top: 18px; width: 154px; height: 154px;
+    border-radius: 26px; object-fit: cover; box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+    background: var(--md-surface-container-high);
+  }
+  .hero-cover-top-right {
+    position: absolute; right: 16px; top: 0; width: 86px; height: 86px;
+    border-radius: 22px; object-fit: cover; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+    background: var(--md-surface-container-high);
+  }
+  .hero-cover-mid-right {
+    position: absolute; right: 68px; top: 102px; width: 80px; height: 80px;
+    border-radius: 20px; object-fit: cover; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+    background: var(--md-surface-container-high);
+  }
+  .potok-controls-row {
+    position: relative; z-index: 2; display: flex; align-items: center;
+    justify-content: space-between; padding: 0 6px; margin-bottom: 22px;
+  }
+  .potok-mode-label { display: inline-flex; align-items: center; gap: 8px; color: #d4d0d8; font-size: 14px; font-weight: 500; cursor: pointer; }
+  .potok-white-play-btn {
+    width: 82px; height: 82px; border-radius: 50%; border: none;
+    background: #ffffff; color: #000000; display: flex; align-items: center;
+    justify-content: center; cursor: pointer; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  .dual-shortcut-row {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    padding: 0 16px; margin-bottom: 26px;
+  }
+  .shortcut-pill-card {
+    display: flex; align-items: center; gap: 10px; height: 58px;
+    padding: 4px 12px 4px 4px; border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.06); cursor: pointer;
+  }
+  .shortcut-thumb { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: #222028; }
+  .shortcut-info { min-width: 0; flex: 1; }
+  .shortcut-title { font-size: 14px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 5px; }
+  .shortcut-sub { font-size: 12px; color: var(--md-on-surface-variant); margin-top: 2px; }
+
+  .home-section-title { font-size: 22px; font-weight: 800; letter-spacing: -0.4px; padding: 0 16px; margin-bottom: 14px; }
+  .for-you-scroll { display: flex; gap: 14px; overflow-x: auto; padding: 0 16px 8px; margin-bottom: 24px; scrollbar-width: none; }
+  .for-you-scroll::-webkit-scrollbar { display: none; }
+  .for-you-card { width: 176px; flex-shrink: 0; cursor: pointer; }
+  .for-you-art-stack { position: relative; width: 176px; height: 164px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
+  .stack-side-img { position: absolute; width: 128px; height: 128px; border-radius: 20px; object-fit: cover; opacity: 0.55; background: #222028; }
+  .stack-side-img.left { left: 0; transform: rotate(-6deg) scale(0.92); }
+  .stack-side-img.right { right: 0; transform: rotate(6deg) scale(0.92); }
+  .stack-main-img { position: relative; z-index: 2; width: 148px; height: 148px; border-radius: 24px; object-fit: cover; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55); background: #222028; }
+  .for-you-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .for-you-sub { font-size: 12px; color: var(--md-on-surface-variant); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .library-screen-pad { padding: max(18px, env(safe-area-inset-top)) 16px 20px; }
+  .lib-top-cards { display: flex; gap: 12px; overflow-x: auto; margin-bottom: 18px; scrollbar-width: none; }
+  .lib-big-card { height: 122px; border-radius: 24px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; flex-shrink: 0; }
+  .lib-big-card.red-fav { width: 268px; background: linear-gradient(135deg, #b71c1c 0%, #681616 100%); color: #ffffff; }
+  .lib-big-card.grey-dl { width: 160px; background: linear-gradient(135deg, #d4d4d8 0%, #9ca3af 100%); color: #18181b; }
+  .lib-filter-bar { display: flex; align-items: center; gap: 8px; overflow-x: auto; margin-bottom: 24px; scrollbar-width: none; }
+  .lib-circle-btn {
+    width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #141417; color: #ffffff; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer;
+  }
+  .lib-pill-btn {
+    height: 42px; padding: 0 18px; border-radius: 21px; border: 1px solid rgba(255, 255, 255, 0.08);
+    background: #141417; color: #ffffff; font-family: inherit; font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer;
+  }
+  .lib-pill-btn.active { background: #ffffff; color: #000000; border-color: #ffffff; }
+
+  .fav-detail-header { background: linear-gradient(180deg, #4b1519 0%, #240b0d 65%, var(--md-background) 100%); padding: max(16px, env(safe-area-inset-top)) 16px 18px; }
+  .fav-top-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .fav-glass-btn { width: 44px; height: 44px; border-radius: 22px; border: none; background: rgba(255, 255, 255, 0.12); color: #ffffff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+  .fav-hero-heart { display: flex; justify-content: center; margin: 12px 0 28px; }
+  .fav-hero-heart .icon { font-size: 74px; color: #ff6b6b; }
+  .fav-action-bar { display: flex; align-items: center; gap: 10px; margin-top: 16px; }
+  .fav-play-all-btn { flex: 1; height: 52px; border-radius: 26px; border: none; background: #ffffff; color: #000000; font-family: inherit; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+
+  .clean-track-list { display: flex; flex-direction: column; gap: 6px; padding: 0 16px; }
+  .clean-track-row { display: flex; align-items: center; padding: 8px 4px; border-radius: 14px; cursor: pointer; }
+  .clean-track-row.playing { background: rgba(255, 255, 255, 0.08); }
+  .clean-track-row.disabled-track { opacity: 0.55; }
+  .clean-track-cover {
+    width: 52px; height: 52px; border-radius: 12px; object-fit: cover;
+    background: #222028; flex-shrink: 0; transition: opacity 0.2s;
+  }
+  .clean-track-info { flex: 1; min-width: 0; margin: 0 12px; }
+  .clean-track-title { font-size: 15px; font-weight: 700; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .clean-track-artist { font-size: 13px; color: #9e9aa4; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .clean-dur-pill { padding: 5px 11px; border-radius: 999px; background: #151518; border: 1px solid rgba(255, 255, 255, 0.06); font-size: 12px; font-weight: 600; color: #d4d4d8; flex-shrink: 0; }
+
+  .search-screen-wrap { padding: max(18px, env(safe-area-inset-top)) 16px 20px; display: flex; flex-direction: column; min-height: calc(100dvh - 150px); justify-content: space-between; }
+  .search-bottom-card { background: #141417; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 26px; padding: 8px 0; margin-top: 14px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6); }
+  .history-item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; cursor: pointer; }
+  .history-left { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 500; color: #ffffff; }
+  .history-left .icon { color: #8e8e93; font-size: 20px; }
+  .search-card-input-bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px 6px 18px; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+  .search-card-input-bar input { flex: 1; background: transparent; border: none; color: #ffffff; font-size: 16px; font-family: inherit; outline: none; }
+  .search-source-badge { width: 36px; height: 36px; border-radius: 18px; background: #261515; color: #ff4e45; display: flex; align-items: center; justify-content: center; }
+
+  .profile-screen-pad { padding: max(18px, env(safe-area-inset-top)) 16px 24px; }
+  .profile-top-card { background: #141417; border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 26px; padding: 18px; margin-bottom: 20px; }
+  .profile-user-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .user-id-meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+  .user-id-chip { background: #1b1b20; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 10px 12px; }
+  .user-id-chip-lbl { font-size: 11px; color: #8e8e93; margin-bottom: 3px; }
+  .user-id-chip-val { font-size: 13px; font-weight: 800; color: #ffffff; word-break: break-all; }
+
+  .profile-share-btn { width: 100%; height: 48px; border-radius: 16px; border: none; background: #ffffff; color: #000000; font-family: inherit; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+  .profile-group-label { font-size: 13px; font-weight: 600; color: #8e8e93; margin: 4px 6px 8px; }
+  .profile-menu-group { background: #141417; border: 1px solid rgba(255, 255, 255, 0.07); border-radius: 24px; overflow: hidden; margin-bottom: 20px; }
+  .profile-menu-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 18px; cursor: pointer; border-bottom: 1px solid rgba(255, 255, 255, 0.04); }
+  .profile-menu-item:last-child { border-bottom: none; }
+  .pm-left { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 600; color: #ffffff; }
+  .pm-left .icon { color: #8e8e93; font-size: 21px; }
+  .pm-right { display: flex; align-items: center; gap: 6px; color: #8e8e93; font-size: 14px; }
+
+  .m3-switch { width: 46px; height: 26px; border-radius: 13px; background: #3f3f46; position: relative; cursor: pointer; transition: background 0.2s; }
+  .m3-switch.on { background: var(--md-primary); }
+  .m3-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; transition: transform 0.2s; }
+  .m3-switch.on::after { transform: translateX(20px); }
+
+  .session-item-row {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: #1b1b20;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .stats-top-summary { background: #121215; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 24px; padding: 20px 12px; display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; margin-bottom: 12px; }
+  .stat-big-val { font-size: 26px; font-weight: 800; color: #ffffff; }
+  .stat-sub-lbl { font-size: 12px; color: #8e8e93; margin-top: 4px; }
+  .stats-detail-box { background: #121215; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 24px; padding: 18px 12px; margin-bottom: 22px; }
+  .stats-grid-2x2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 8px; text-align: center; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+  .stats-bottom-single { text-align: center; padding-top: 14px; }
+  .stats-artists-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 22px; scrollbar-width: none; }
+  .stat-artist-item { width: 82px; flex-shrink: 0; text-align: center; cursor: pointer; }
+  .stat-artist-item img { width: 74px; height: 74px; border-radius: 50%; object-fit: cover; margin-bottom: 6px; background: #222028; }
+  .stat-artist-name { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-artist-time { font-size: 11px; color: #8e8e93; margin-top: 2px; }
+
+  .mini-player {
+    position: fixed; left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom));
+    max-width: 456px; margin: 0 auto; background: #1e1d22; border-radius: 20px;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55); overflow: hidden; z-index: 35;
+    border: 1px solid rgba(255, 255, 255, 0.1); transition: transform 0.25s, opacity 0.2s;
+  }
+  .mini-player.hidden { transform: translateY(160%); opacity: 0; pointer-events: none; }
+  .mini-body { display: flex; align-items: center; padding: 8px 12px; cursor: pointer; }
+  .mini-play-btn { width: 40px; height: 40px; border-radius: 20px; border: none; background: #ffffff; color: #000000; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin-right: 4px; }
+  .mini-progress-track { height: 3px; background: rgba(255, 255, 255, 0.1); width: 100%; }
+  .mini-progress-fill { height: 100%; background: var(--md-primary); width: 0%; }
+
+  .full-player {
+    position: fixed; inset: 0; background: var(--md-background); z-index: 80;
+    display: flex; flex-direction: column;
+    padding: max(16px, env(safe-area-inset-top)) 22px calc(28px + env(safe-area-inset-bottom));
+    transform: translateY(104%); transition: transform 0.32s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .full-player.expanded { transform: translateY(0); }
+  .fp-container { max-width: 440px; width: 100%; height: 100%; margin: 0 auto; display: flex; flex-direction: column; justify-content: space-between; }
+  .fp-media-stage {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    aspect-ratio: 1/1;
+    margin: 6px auto;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 18px 42px rgba(0,0,0,0.55);
+    background: #18171b;
+  }
+  .fp-artwork { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #ytPlayerMount {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+  .fp-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .ctrl-secondary { width: 56px; height: 56px; border-radius: 28px; border: none; background: var(--md-surface-container-high); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .ctrl-primary-play { width: 84px; height: 68px; border-radius: 34px; border: none; background: #ffffff; color: #000000; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+  .bottom-nav-pill {
+    position: fixed; left: 14px; right: 14px; bottom: max(10px, env(safe-area-inset-bottom));
+    height: 60px; max-width: 452px; margin: 0 auto; background: rgba(24, 24, 28, 0.94);
+    backdrop-filter: blur(18px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 30px;
+    display: flex; justify-content: space-around; align-items: center; z-index: 40;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+  .nav-btn { background: none; border: none; color: #71717a; flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .nav-btn.active { color: #ffffff; }
+  .nav-pill-indicator { width: 56px; height: 36px; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
+  .nav-btn.active .nav-pill-indicator { background: rgba(255, 255, 255, 0.12); }
+</style>
+</head>
+<body>
+
+<!-- УВЕДОМЛЕНИЕ О СТАТУСЕ / ОШИБКАХ -->
+<div id="appNoticeToast" class="app-notice-toast">
+  <span class="icon filled" style="color:var(--md-primary)">info</span>
+  <div id="appNoticeText" style="flex:1"></div>
+</div>
+
+<!-- ЭКРАН ЗАГРУЗКИ И АВТОМАТИЧЕСКОГО ВОССТАНОВЛЕНИЯ СЕССИИ -->
+<div id="bootOverlay" class="boot-overlay">
+  <div class="boot-spinner"></div>
+  <div id="bootStatusText" style="font-size:14px;color:#9e9aa4;font-weight:600">Восстановление сессии...</div>
+</div>
+
+<!-- ==========================================================================
+     1. ЭКРАН РЕГИСТРАЦИИ И ВХОДА ПО ЛОГИНУ И ПАРОЛЮ
+     ========================================================================== -->
+<div id="authOverlay" class="auth-overlay hidden">
+
+  <div id="authStepWelcome" class="auth-step active">
+    <div></div>
+    <div class="welcome-center">
+      <div class="book-circle-emblem">
+        <svg class="welcome-book-svg" viewBox="0 0 34 26">
+          <path class="wb-cover" d="M3 20 C9 18, 14 19, 17 21 C20 19, 25 18, 31 20" />
+          <path class="wb-page" d="M4 6 C9 5, 14 6, 17 8 L17 20 C14 18, 9 17, 4 18 Z" />
+          <path class="wb-page" d="M30 6 C25 5, 20 6, 17 8 L17 20 C20 18, 25 17, 30 18 Z" />
+          <path class="wb-leaf" d="M29 5 C24 4, 20 5, 17 8 L17 19 C20 16, 24 15, 29 16 Z" />
+        </svg>
+      </div>
+      <h1 style="font-size:40px;font-weight:800;letter-spacing:-0.8px;margin-bottom:8px">mmusic</h1>
+      <p style="font-size:15px;color:#8e8e93">Вход и регистрация по логину и паролю</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn-white-pill" onclick="openCredentialsAuthFlow('login')">Войти в аккаунт</button>
+      <button class="btn-dark-pill" onclick="openCredentialsAuthFlow('register')">Создать аккаунт</button>
+    </div>
+  </div>
+
+  <div id="authStepCredentials" class="auth-step">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <button class="lib-circle-btn" onclick="goToAuthStep('welcome')"><span class="icon">arrow_back</span></button>
+      <span id="authStepCredentialsHeader" style="font-size:14px;font-weight:600;color:#8e8e93">Вход в аккаунт</span>
+      <div style="width:44px"></div>
+    </div>
+
+    <div style="margin:auto 0;text-align:center">
+      <div id="authMd3Avatar" class="md3-user-avatar style-red">
+        <span id="authMd3AvatarIcon" class="icon filled" style="font-size:40px">graphic_eq</span>
+      </div>
+
+      <div id="avatarSelectBlock" style="display:none">
+        <div style="font-size:12px;color:#8e8e93;margin-top:10px">Выберите иконку в стиле MD3:</div>
+        <div class="avatar-style-selector">
+          <button type="button" class="avatar-style-pill active" onclick="setAvatarStyle('style-red', 'graphic_eq', this)">Красная</button>
+          <button type="button" class="avatar-style-pill" onclick="setAvatarStyle('style-black', 'album', this)">Чёрная</button>
+          <button type="button" class="avatar-style-pill" onclick="setAvatarStyle('style-song', 'auto_awesome', this)">По цвету песни</button>
+          <button type="button" class="avatar-style-pill" onclick="setAvatarStyle('style-green', 'equalizer', this)">Зелёная</button>
+          <button type="button" class="avatar-style-pill" onclick="setAvatarStyle('style-violet', 'headphones', this)">Фиолетовая</button>
+        </div>
+      </div>
+
+      <div id="nameInputBoxWrap" class="auth-input-box" style="display:none;margin-top:14px">
+        <span class="icon" style="color:#8e8e93">badge</span>
+        <input type="text" id="authDisplayNameInput" maxlength="40" autocomplete="name" placeholder="Отображаемое имя (до 40 символов)">
+      </div>
+
+      <div class="auth-input-box" style="margin-top:12px">
+        <span class="icon" style="color:#8e8e93">alternate_email</span>
+        <input type="text" id="authUsernameInput" maxlength="24" autocomplete="username" spellcheck="false" autocapitalize="none" placeholder="Логин (например, alex_01)" onkeydown="if(event.key==='Enter')submitCredentialsAuth()">
+      </div>
+      <div class="field-hint">Допустимо 3–24 символа: латинские буквы (a–z), цифры (0–9), символы «_» и «-». Регистр при проверке уникальности не учитывается.</div>
+
+      <div class="auth-input-box">
+        <span class="icon" style="color:#8e8e93">lock</span>
+        <input type="password" id="authPasswordInput" autocomplete="current-password" placeholder="Пароль (не менее 8 символов)" onkeydown="if(event.key==='Enter')submitCredentialsAuth()">
+        <button type="button" class="input-eye-btn" onclick="togglePasswordVisibility('authPasswordInput', 'authPassEyeIcon')" aria-label="Показать пароль">
+          <span id="authPassEyeIcon" class="icon" style="font-size:20px">visibility</span>
+        </button>
+      </div>
+
+      <div id="confirmPasswordWrap" style="display:none">
+        <div class="auth-input-box">
+          <span class="icon" style="color:#8e8e93">lock_reset</span>
+          <input type="password" id="authPasswordConfirmInput" autocomplete="new-password" placeholder="Повторите пароль" onkeydown="if(event.key==='Enter')submitCredentialsAuth()">
+        </div>
+        <div class="field-hint">Пароль сохраняется в точности как введён (пробелы и регистр символов не изменяются).</div>
+      </div>
+
+      <div id="credentialsStepError" style="color:#ff6b6b;font-size:13px;margin-top:8px;display:none;line-height:1.4"></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button id="submitCredentialsBtn" class="btn-white-pill" onclick="submitCredentialsAuth()">Войти</button>
+      <button id="toggleAuthModeBtn" class="btn-dark-pill" onclick="toggleBetweenLoginAndRegister()">Создать новый аккаунт</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     2. ОСНОВНЫЕ ЭКРАНЫ
+     ========================================================================== -->
+<main>
+
+  <!-- ЭКРАН 1: ГЛАВНАЯ «ПОТОК» -->
+  <section id="tab-home" class="screen active">
+    <div class="potok-top-section">
+      <svg class="potok-bg-ribbon" viewBox="0 0 340 290" fill="none">
+        <path d="M360 15 L140 120 L350 75 L105 215 L360 145" stroke="white" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+
+      <div class="potok-header-bar">
+        <h1 class="potok-giant-title">Поток</h1>
+        <button class="top-bell-btn" onclick="switchTab('stats')" title="Статистика">
+          <span class="icon">bar_chart</span>
+        </button>
+      </div>
+
+      <div class="potok-collage-stage">
+        <img id="heroMainArt" class="hero-cover-main" src="" alt="">
+        <img id="heroTopRightArt" class="hero-cover-top-right" src="" alt="">
+        <img id="heroMidRightArt" class="hero-cover-mid-right" src="" alt="">
+      </div>
+
+      <div class="potok-controls-row">
+        <div class="potok-mode-label" onclick="toggleDynamicSongColor()">
+          <span class="icon" style="font-size:20px">graphic_eq</span>
+          <span id="potokModeText">Оттенок по песне</span>
+        </div>
+        <button class="potok-white-play-btn" onclick="togglePotokPlay()" aria-label="Запустить Поток">
+          <span id="potokHeroPlayIcon" class="icon filled" style="font-size:40px;margin-left:2px">play_arrow</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="dual-shortcut-row">
+      <div class="shortcut-pill-card" onclick="openRecentTracksView()">
+        <img id="recentShortcutImg" class="shortcut-thumb" src="" alt="">
+        <div class="shortcut-info">
+          <div class="shortcut-title"><span class="icon" style="font-size:16px;color:#9e9aa4">history</span>Недавние</div>
+          <div id="recentCountLabel" class="shortcut-sub">0 треков</div>
+        </div>
+      </div>
+
+      <div class="shortcut-pill-card" onclick="openFavoritesDetailScreen()">
+        <img id="favShortcutImg" class="shortcut-thumb" src="" alt="">
+        <div class="shortcut-info">
+          <div class="shortcut-title"><span class="icon filled" style="font-size:16px;color:#ffffff">favorite</span>Любимые</div>
+          <div id="favHomeCountLabel" class="shortcut-sub">0 треков</div>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="home-section-title">Для вас</h2>
+    <div id="forYouRow" class="for-you-scroll"></div>
+
+    <h2 class="home-section-title">Релизы (YouTube Music)</h2>
+    <div id="homeTrackList" class="clean-track-list"></div>
+  </section>
+
+  <!-- ЭКРАН 2: МЕДИАТЕКА -->
+  <section id="tab-library" class="screen">
+    <div class="library-screen-pad">
+      <div class="lib-top-cards">
+        <div class="lib-big-card red-fav" onclick="openFavoritesDetailScreen()">
+          <span class="icon filled" style="font-size:32px">favorite</span>
+          <div>
+            <div style="font-size:18px;font-weight:800">Любимые</div>
+            <div id="libFavCountText" style="font-size:13px;opacity:0.8">0 треков</div>
+          </div>
+        </div>
+
+        <div class="lib-big-card grey-dl" onclick="document.getElementById('fileInput').click()">
+          <span class="icon" style="font-size:30px">download</span>
+          <div>
+            <div style="font-size:18px;font-weight:800">Локальные</div>
+            <div id="libLocalCountText" style="font-size:13px;opacity:0.75">0 треков</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lib-filter-bar">
+        <input type="file" id="fileInput" accept="audio/*" multiple style="display:none">
+        <button class="lib-circle-btn" onclick="document.getElementById('fileInput').click()" title="Добавить файлы"><span class="icon">add</span></button>
+        <button class="lib-circle-btn" onclick="openFavoritesDetailScreen()" title="Любимые"><span class="icon">favorite</span></button>
+        <button class="lib-circle-btn" onclick="refreshCatalogStreams()" title="Обновить"><span class="icon">sync</span></button>
+        <button class="lib-pill-btn active" onclick="filterLibraryView('all', this)">Все</button>
+        <button class="lib-pill-btn" onclick="openFavoritesDetailScreen()">Любимые</button>
+        <button class="lib-pill-btn" onclick="switchTab('stats')">Статистика</button>
+      </div>
+
+      <div id="libraryContentBox"></div>
+    </div>
+  </section>
+
+  <!-- ЭКРАН 2.1: ДЕТАЛЬНЫЙ ЭКРАН «ЛЮБИМЫЕ» -->
+  <section id="tab-fav-detail" class="screen">
+    <div class="fav-detail-header">
+      <div class="fav-top-nav">
+        <button class="fav-glass-btn" onclick="switchTab('library')"><span class="icon">chevron_left</span></button>
+        <div style="display:flex;gap:10px">
+          <button class="fav-glass-btn" onclick="switchTab('search')"><span class="icon">search</span></button>
+          <button class="fav-glass-btn" onclick="shuffleFavoritesAndPlay()"><span class="icon">sort</span></button>
+        </div>
+      </div>
+      <div class="fav-hero-heart"><span class="icon filled">favorite</span></div>
+      <h1 style="font-size:28px;font-weight:800">Любимые</h1>
+      <div id="favDetailCountSub" style="font-size:13px;color:#b8a8aa;margin-top:2px">0 треков</div>
+      <div class="fav-action-bar">
+        <button class="fav-play-all-btn" onclick="playAllFavorites()">
+          <span class="icon filled">play_arrow</span>Слушать
+        </button>
+        <button class="fav-glass-btn" style="width:52px;height:52px;border-radius:26px" onclick="shuffleFavoritesAndPlay()">
+          <span class="icon">shuffle</span>
+        </button>
+      </div>
+    </div>
+    <div id="favDetailTrackList" class="clean-track-list" style="margin-top:8px"></div>
+  </section>
+
+  <!-- ЭКРАН 3: ПОИСК С ПАГИНАЦИЕЙ YOUTUBE DATA API V3 -->
+  <section id="tab-search" class="screen">
+    <div class="search-screen-wrap">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <h2 style="font-size:22px;font-weight:800" id="searchHeadingTitle">Поиск YouTube Music</h2>
+          <span id="parserActiveBadge" style="font-size:11px;color:var(--md-primary);font-weight:700">YouTube Data API v3</span>
+        </div>
+        <div id="searchResultsList" class="clean-track-list" style="padding:0"></div>
+        <button id="loadMoreSearchBtn" class="btn-dark-pill" style="margin-top:12px;height:44px;display:none" onclick="loadNextSearchPage()">Загрузить ещё результаты</button>
+      </div>
+
+      <div class="search-bottom-card">
+        <div id="searchHistoryContainer"></div>
+        <div class="search-card-input-bar">
+          <span class="icon" style="color:#8e8e93">search</span>
+          <input type="text" id="searchInput" placeholder="Поиск песен на YouTube Music..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter')commitSearchHistory(this.value)">
+          <div class="search-source-badge" title="YouTube Music">
+            <span class="icon filled" style="font-size:20px">play_circle</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ЭКРАН 4: ПРОФИЛЬ, РЕДАКТИРОВАНИЕ, УСТРОЙСТВА И ИСТОРИЯ ВХОДОВ -->
+  <section id="tab-profile" class="screen">
+    <div class="profile-screen-pad">
+      <div class="profile-top-card">
+        <div class="profile-user-row">
+          <div id="profileAvatarBox" class="md3-user-avatar style-red" style="width:68px;height:68px;border-radius:22px">
+            <span id="profileAvatarIcon" class="icon filled" style="font-size:32px">graphic_eq</span>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="icon filled" style="font-size:18px;color:#ffffff">verified_user</span>
+              <span id="profileNameText" style="font-size:20px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Гость</span>
+            </div>
+            <div id="profileHandleText" style="font-size:13px;color:#8e8e93;margin-top:2px">@guest</div>
+            <div id="profileProviderBadge" style="font-size:11px;color:var(--md-primary);font-weight:700;margin-top:3px">Логин и пароль • D1</div>
+          </div>
+          <button class="lib-circle-btn" style="width:36px;height:36px" onclick="logoutCurrentSession()" title="Выйти из аккаунта"><span class="icon" style="font-size:18px">logout</span></button>
+        </div>
+
+        <div class="user-id-meta-grid">
+          <div class="user-id-chip">
+            <div class="user-id-chip-lbl">Постоянный ID</div>
+            <div id="profileUidValue" class="user-id-chip-val" style="color:var(--md-primary)">—</div>
+          </div>
+          <div class="user-id-chip">
+            <div class="user-id-chip-lbl">Номер аккаунта</div>
+            <div id="profileSerialValue" class="user-id-chip-val">—</div>
+          </div>
+          <div class="user-id-chip" style="grid-column: span 2;">
+            <div class="user-id-chip-lbl">Дата регистрации</div>
+            <div id="profileRegDateText" class="user-id-chip-val">—</div>
+          </div>
+          <div class="user-id-chip" style="grid-column: span 2;">
+            <div class="user-id-chip-lbl">Время с момента регистрации</div>
+            <div id="profileTenureCounter" class="user-id-chip-val" style="color:var(--md-primary)">—</div>
+          </div>
+        </div>
+
+        <!-- Быстрое изменение отображаемого имени с моментальным сохранением в D1 -->
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <div class="auth-input-box" style="height:44px;margin-bottom:0;flex:1">
+            <span class="icon" style="color:#8e8e93;font-size:18px">edit</span>
+            <input type="text" id="profileEditNameInput" maxlength="40" placeholder="Изменить отображаемое имя" style="font-size:13px" onkeydown="if(event.key==='Enter')saveProfileChangesToServer()">
+          </div>
+          <button class="btn-white-pill" style="width:auto;padding:0 16px;height:44px;font-size:13px" onclick="saveProfileChangesToServer()">Сохранить</button>
+        </div>
+
+        <button class="profile-share-btn" onclick="shareProfileStats()">
+          <span class="icon" style="font-size:20px">share</span>Поделиться профилем
+        </button>
+      </div>
+
+      <div class="profile-group-label">Профиль и оформление</div>
+      <div class="profile-menu-group">
+        <div class="profile-menu-item" onclick="switchTab('stats')">
+          <div class="pm-left"><span class="icon">bar_chart</span>Статистика аккаунта</div>
+          <div class="pm-right"><span id="profileStatPreview">0 просл.</span><span class="icon">chevron_right</span></div>
+        </div>
+        <div class="profile-menu-item" onclick="cycleUserAvatarStyle()">
+          <div class="pm-left"><span class="icon">palette</span>Иконка MD3</div>
+          <div class="pm-right"><span id="currentStyleLabel">Красная</span><span class="icon">chevron_right</span></div>
+        </div>
+        <div class="profile-menu-item" onclick="toggleDynamicSongColor()">
+          <div class="pm-left"><span class="icon">auto_awesome</span>Оттенок по песне</div>
+          <div class="pm-right"><div id="dynColorSwitch" class="m3-switch on"></div></div>
+        </div>
+        <div class="profile-menu-item" onclick="toggleAmoledMode()">
+          <div class="pm-left"><span class="icon">contrast</span>Чёрная тема (AMOLED)</div>
+          <div class="pm-right"><div id="amoledSwitch" class="m3-switch"></div></div>
+        </div>
+      </div>
+
+      <!-- РАЗДЕЛ: УСТРОЙСТВА И ИСТОРИЯ ВХОДОВ -->
+      <div class="profile-group-label">Устройства и сессии (<span id="realtimeSyncStatusText">опрос каждые 5 с</span>)</div>
+      <div class="profile-top-card" style="margin-bottom:20px">
+        <div style="font-size:12px;color:#9e9aa4;margin-bottom:12px;line-height:1.4">
+          Активные серверные сессии и история входов хранятся в Cloudflare D1. Вы можете отозвать доступ любого устройства или выйти со всех устройств сразу.
+        </div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">Активные сессии:</div>
+        <div id="activeSessionsContainer" style="margin-bottom:14px"></div>
+
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px">Последние входы в аккаунт:</div>
+        <div id="loginHistoryContainer" style="margin-bottom:14px"></div>
+
+        <button class="btn-dark-pill" style="height:44px;font-size:13px;color:#ff6b6b;border-color:rgba(255,107,107,0.3)" onclick="logoutAllDevices()">
+          <span class="icon" style="font-size:18px">phonelink_erase</span>Выйти со всех устройств
+        </button>
+      </div>
+
+      <div class="profile-group-label">Адрес серверного API (Cloudflare Worker)</div>
+      <div class="profile-top-card" style="margin-bottom:20px">
+        <div class="auth-input-box" style="height:46px;margin-bottom:10px">
+          <input type="url" id="backendApiUrlInput" placeholder="https://mmusic.work-sn1pee.workers.dev" style="font-size:13px">
+        </div>
+        <button class="btn-white-pill" style="height:44px;font-size:14px" onclick="saveBackendApiUrl()">Сохранить адрес сервера</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ЭКРАН 5: ПОКАЗАТЕЛИ -->
+  <section id="tab-stats" class="screen">
+    <div class="profile-screen-pad">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="profile-group-label" style="font-size:15px;margin:0">Показатели текущего аккаунта</div>
+        <button style="background:none;border:none;color:#ff6b6b;font-size:12px;font-weight:600;cursor:pointer" onclick="resetRealStats()">Сбросить в 0</button>
+      </div>
+
+      <div class="stats-top-summary">
+        <div><div id="statTotalPlays" class="stat-big-val">0</div><div class="stat-sub-lbl">Прослушиваний</div></div>
+        <div><div id="statUniqueTracks" class="stat-big-val">0</div><div class="stat-sub-lbl">Треков</div></div>
+        <div><div id="statTotalHours" class="stat-big-val">0.0</div><div class="stat-sub-lbl">Часов</div></div>
+      </div>
+
+      <div class="stats-detail-box">
+        <div class="stats-grid-2x2">
+          <div><div id="statStreakDays" class="stat-big-val" style="font-size:22px">0</div><div class="stat-sub-lbl">Серия (дней)</div></div>
+          <div><div id="statPeakHour" class="stat-big-val" style="font-size:22px">—</div><div class="stat-sub-lbl">Пик активности</div></div>
+          <div><div id="statTracksPerDay" class="stat-big-val" style="font-size:22px">0</div><div class="stat-sub-lbl">треков в день</div></div>
+          <div><div id="statTotalArtists" class="stat-big-val" style="font-size:22px">0</div><div class="stat-sub-lbl">артистов всего</div></div>
+        </div>
+        <div class="stats-bottom-single">
+          <div id="statFavWeekday" class="stat-big-val" style="font-size:22px">—</div>
+          <div class="stat-sub-lbl">любимый день недели</div>
+        </div>
+      </div>
+
+      <div class="profile-group-label" style="font-size:15px;margin-bottom:12px">Любимые артисты</div>
+      <div id="statsTopArtistsRow" class="stats-artists-row"></div>
+
+      <div class="profile-group-label" style="font-size:15px;margin-bottom:10px">Любимые треки</div>
+      <div id="statsTopTracksList" class="clean-track-list" style="padding:0;margin-bottom:20px"></div>
+
+      <button class="btn-dark-pill" onclick="switchTab('profile')">Назад</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- МИНИ-ПЛЕЕР -->
+<div id="miniPlayer" class="mini-player hidden">
+  <div class="mini-body" onclick="toggleFullPlayer(true)">
+    <img id="miniCover" class="clean-track-cover" style="width:42px;height:42px;border-radius:10px" src="" alt="">
+    <div class="clean-track-info">
+      <div id="miniTitle" class="clean-track-title" style="font-size:14px"></div>
+      <div id="miniArtist" class="clean-track-artist" style="font-size:12px"></div>
+    </div>
+    <button class="mini-play-btn" onclick="event.stopPropagation(); togglePlay()">
+      <span id="miniPlayIcon" class="icon filled">play_arrow</span>
+    </button>
+    <button class="top-bell-btn" style="width:36px;height:36px" onclick="event.stopPropagation(); nextTrack()">
+      <span class="icon">skip_next</span>
+    </button>
+  </div>
+  <div class="mini-progress-track"><div id="miniBar" class="mini-progress-fill"></div></div>
+</div>
+
+<!-- ПОЛНОЭКРАННЫЙ ПЛЕЕР С ВИДИМЫМ YOUTUBE IFRAME PLAYER -->
+<div id="fullPlayer" class="full-player">
+  <div class="fp-container">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <button class="fav-glass-btn" onclick="toggleFullPlayer(false)"><span class="icon">keyboard_arrow_down</span></button>
+      <span id="fpSourceBadge" style="font-size:12px;font-weight:700;color:var(--md-primary)">YouTube Music</span>
+      <button class="fav-glass-btn" onclick="toggleFavCurrent()"><span id="fpFavIcon" class="icon">favorite</span></button>
+    </div>
+
+    <div class="fp-media-stage">
+      <img id="fpCover" class="fp-artwork" src="" alt="">
+      <div id="ytPlayerMount"></div>
+    </div>
+
+    <div>
+      <div id="fpTitle" style="font-size:22px;font-weight:800"></div>
+      <div id="fpArtist" style="font-size:15px;color:#9e9aa4;margin-top:4px"></div>
+    </div>
+
+    <div>
+      <input type="range" id="seekSlider" min="0" max="100" value="0" style="width:100%;accent-color:#ffffff;cursor:pointer" oninput="seekAudio(this.value)">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:#9e9aa4;margin-top:6px">
+        <span id="curTime">0:00</span>
+        <span id="durTime">0:00</span>
+      </div>
+    </div>
+
+    <div class="fp-controls">
+      <button class="top-bell-btn" onclick="toggleShuffle()" id="shuffleBtn"><span class="icon">shuffle</span></button>
+      <button class="ctrl-secondary" onclick="prevTrack()"><span class="icon filled">skip_previous</span></button>
+      <button class="ctrl-primary-play" onclick="togglePlay()">
+        <span id="fpPlayIcon" class="icon filled" style="font-size:36px">play_arrow</span>
+      </button>
+      <button class="ctrl-secondary" onclick="nextTrack()"><span class="icon filled">skip_next</span></button>
+      <button class="top-bell-btn" onclick="toggleRepeat()" id="repeatBtn"><span class="icon">repeat</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- НИЖНЯЯ НАВИГАЦИЯ MD3 -->
+<nav class="bottom-nav-pill" aria-label="Навигация">
+  <button class="nav-btn active" id="nav-home" onclick="switchTab('home')" aria-label="Поток">
+    <div class="nav-pill-indicator"><span class="icon filled">home</span></div>
+  </button>
+  <button class="nav-btn" id="nav-library" onclick="switchTab('library')" aria-label="Медиатека">
+    <div class="nav-pill-indicator"><span class="icon">folder</span></div>
+  </button>
+  <button class="nav-btn" id="nav-search" onclick="switchTab('search')" aria-label="Поиск">
+    <div class="nav-pill-indicator"><span class="icon">search</span></div>
+  </button>
+  <button class="nav-btn" id="nav-profile" onclick="switchTab('profile')" aria-label="Профиль">
+    <div class="nav-pill-indicator"><span class="icon">hexagon</span></div>
+  </button>
+</nav>
+
+<canvas id="colorCanvas" width="16" height="16" style="display:none"></canvas>
+<audio id="audioElement" preload="auto"></audio>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+  const DEFAULT_COVER_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+      <rect width="300" height="300" rx="36" fill="#1f1d24"/>
+      <circle cx="150" cy="150" r="64" fill="rgba(255,255,255,0.05)"/>
+      <path d="M135 188V116l58-14v72" fill="none" stroke="#9e9aa4" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="122" cy="188" r="15" fill="#9e9aa4"/>
+      <circle cx="180" cy="174" r="15" fill="#9e9aa4"/>
+    </svg>
+  `);
+
+  let API_BASE_URL = (localStorage.getItem("mmusic_api_base_url") || "https://mmusic.work-sn1pee.workers.dev").replace(/\/+$/, "");
+
+  // ============================================================================
+  // 0. ЗАЩИЩЁННОЕ ХРАНИЛИЩЕ СЕССИИ (APK KEYSTORE BRIDGE / CAPACITOR / WEB)
+  // ============================================================================
+  const AuthStorage = {
+    async getItem(key) {
+      try {
+        if (window.AndroidKeystoreBridge && typeof window.AndroidKeystoreBridge.getSecureItem === "function") {
+          return window.AndroidKeystoreBridge.getSecureItem(key) || "";
+        }
+        const capPlugin = window.Capacitor?.Plugins?.SecureStoragePlugin;
+        if (capPlugin && typeof capPlugin.get === "function") {
+          const res = await capPlugin.get({ key });
+          return res && res.value ? res.value : "";
+        }
+      } catch (_) {}
+      return localStorage.getItem(key) || "";
+    },
+    async setItem(key, value) {
+      try {
+        if (window.AndroidKeystoreBridge && typeof window.AndroidKeystoreBridge.setSecureItem === "function") {
+          window.AndroidKeystoreBridge.setSecureItem(key, String(value));
+          return;
+        }
+        const capPlugin = window.Capacitor?.Plugins?.SecureStoragePlugin;
+        if (capPlugin && typeof capPlugin.set === "function") {
+          await capPlugin.set({ key, value: String(value) });
+          return;
+        }
+      } catch (_) {}
+      localStorage.setItem(key, String(value));
+    },
+    async removeItem(key) {
+      try {
+        if (window.AndroidKeystoreBridge && typeof window.AndroidKeystoreBridge.removeSecureItem === "function") {
+          window.AndroidKeystoreBridge.removeSecureItem(key);
+        }
+        const capPlugin = window.Capacitor?.Plugins?.SecureStoragePlugin;
+        if (capPlugin && typeof capPlugin.remove === "function") {
+          await capPlugin.remove({ key });
+        }
+      } catch (_) {}
+      localStorage.removeItem(key);
+    }
+  };
+
+  let accessToken = "";
+  let accessTokenExpiresAt = 0;
+  let refreshToken = "";
+  let csrfToken = "";
+  let refreshInFlightPromise = null;
+
+  let currentUser = null;
+  let currentAuthMode = "login";
+  let selectedTempStyle = "style-red";
+  let selectedTempIcon = "graphic_eq";
+  let tenureInterval = null;
+  let statePollingTimer = null;
+  let lastProfileUpdatedAt = 0;
+  let lastLibraryUpdatedAt = 0;
+
+  const authBroadcast = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("mmusic_auth_sync_v1") : null;
+  if (authBroadcast) {
+    authBroadcast.onmessage = (ev) => {
+      const msg = ev.data || {};
+      if (msg.type === "TOKENS_ROTATED") {
+        accessToken = msg.accessToken || "";
+        accessTokenExpiresAt = msg.accessTokenExpiresAt || 0;
+        refreshToken = msg.refreshToken || "";
+        csrfToken = msg.csrfToken || csrfToken;
+      } else if (msg.type === "USER_UPDATED" && msg.user) {
+        if (!currentUser || currentUser.id === msg.user.id) {
+          currentUser = msg.user;
+          localStorage.setItem("mmusic_cached_user_profile", JSON.stringify(currentUser));
+          applyUserAvatarUI();
+        }
+      } else if (msg.type === "LOGGED_OUT") {
+        purgeClientAuthStateAndShowLogin();
+      }
+    };
+  }
+
+  let knownTracksMap = new Map();
+  let displayTracks = [];
+  let nextSearchPageToken = null;
+  let lastSearchQuery = "";
+
+  let recentTracksIds = [];
+  let favoriteIds = new Set();
+  let searchHistory = [];
+  const EMPTY_STATS = {
+    totalPlays: 0,
+    uniqueTrackIds: [],
+    totalSeconds: 0,
+    daysActive: [],
+    hoursMap: {},
+    weekdaysMap: {},
+    artistsSeconds: {},
+    artistCovers: {},
+    trackPlaysMap: {},
+  };
+  let realStats = JSON.parse(JSON.stringify(EMPTY_STATS));
+
+  let currentQueue = [];
+  let currentIndex = -1;
+  let isPlayingState = false;
+  let isShuffle = false;
+  let isRepeat = false;
+  let dynamicColorBySong = true;
+  let lastTimeUpdatePoint = 0;
+  let currentTrackCountedAsPlay = false;
+
+  const audio = document.getElementById("audioElement");
+  let ytPlayer = null;
+  let ytReady = false;
+  let activeEngine = "yt";
+  let ytProgressTimer = null;
+
+  function showNotice(message, durationMs = 4500) {
+    const box = document.getElementById("appNoticeToast");
+    document.getElementById("appNoticeText").textContent = message;
+    box.classList.add("show");
+    clearTimeout(box._hideTimer);
+    box._hideTimer = setTimeout(() => box.classList.remove("show"), durationMs);
+  }
+
+  function bindCoverImage(imgEl, url) {
+    if (!imgEl) return;
+    imgEl.style.opacity = "0.4";
+    imgEl.onload = () => { imgEl.style.opacity = "1"; };
+    imgEl.onerror = () => {
+      imgEl.onerror = null;
+      imgEl.src = DEFAULT_COVER_SVG;
+      imgEl.style.opacity = "1";
+    };
+    imgEl.src = url || DEFAULT_COVER_SVG;
+  }
+
+  // ============================================================================
+  // 1. ОФИЦИАЛЬНЫЙ YOUTUBE IFRAME PLAYER API
+  // ============================================================================
+  function onYouTubeIframeAPIReady() {
+    if (window.location.protocol === "file:") {
+      showNotice(
+        "Внимание: страница открыта по протоколу file://. Для работы официального плеера YouTube требуется открытие по HTTPS или настройка baseUrl.",
+        7000
+      );
+    }
+    ytPlayer = new YT.Player("ytPlayerMount", {
+      width: "100%",
+      height: "100%",
+      playerVars: {
+        autoplay: 0,
+        controls: 1,
+        playsinline: 1,
+        rel: 0,
+        modestbranding: 1,
+        origin: window.location.origin !== "null" ? window.location.origin : API_BASE_URL,
+      },
+      events: {
+        onReady: () => { ytReady = true; },
+        onStateChange: (ev) => {
+          if (activeEngine !== "yt") return;
+          if (ev.data === YT.PlayerState.PLAYING) {
+            isPlayingState = true;
+            const cur = currentQueue[currentIndex];
+            if (cur && !currentTrackCountedAsPlay) {
+              currentTrackCountedAsPlay = true;
+              recordRealPlayStart(cur);
+            }
+            syncPlayerUI();
+            startYtProgressLoop();
+          } else if (ev.data === YT.PlayerState.PAUSED) {
+            isPlayingState = false;
+            syncPlayerUI();
+          } else if (ev.data === YT.PlayerState.ENDED) {
+            if (isRepeat && ytPlayer.seekTo) {
+              ytPlayer.seekTo(0, true);
+              ytPlayer.playVideo();
+            } else {
+              nextTrack();
+            }
+          }
+        },
+        onError: (ev) => {
+          isPlayingState = false;
+          syncPlayerUI();
+          const code = ev.data;
+          let reason = `Ошибка воспроизведения YouTube (код ${code}).`;
+          if (code === 100) reason = "Видео удалено или скрыто настройками приватности.";
+          if (code === 101 || code === 150) {
+            reason = "Правообладатель запретил воспроизведение этого трека во встроенных плеерах вне YouTube.";
+          }
+          if (code === 153) {
+            reason = "Ошибка конфигурации клиента (153): плеер YouTube требует запуска со страницы с HTTPS Origin.";
+          }
+          showNotice(reason, 6000);
+        },
+      },
+    });
+  }
+
+  function startYtProgressLoop() {
+    clearInterval(ytProgressTimer);
+    ytProgressTimer = setInterval(() => {
+      if (activeEngine !== "yt" || !ytReady || !ytPlayer || !ytPlayer.getCurrentTime) return;
+      const curTrack = currentQueue[currentIndex];
+      const curSec = ytPlayer.getCurrentTime() || 0;
+      const durSec = ytPlayer.getDuration() || (curTrack && curTrack.durationSec) || 180;
+      const pct = durSec > 0 ? Math.min(100, (curSec / durSec) * 100) : 0;
+
+      const delta = curSec - lastTimeUpdatePoint;
+      if (delta > 0 && delta < 3) {
+        recordRealListeningDelta(delta, curTrack);
+      }
+      lastTimeUpdatePoint = curSec;
+
+      document.getElementById("miniBar").style.width = `${pct}%`;
+      document.getElementById("seekSlider").value = pct;
+      document.getElementById("curTime").textContent = fmtTime(curSec);
+      document.getElementById("durTime").textContent = fmtTime(durSec);
+    }, 600);
+  }
+
+  // ============================================================================
+  // 2. HTTP-КЛИЕНТ С АВТОМАТИЧЕСКИМ ОБНОВЛЕНИЕМ СЕССИИ И ЗАЩИТОЙ ОТ ГОНКИ ВКЛАДОК
+  // ============================================================================
+  async function persistSessionTokens({ newAccessToken, newAccessExpiresAt, newRefreshToken, newCsrfToken }) {
+    if (newAccessToken !== undefined) {
+      accessToken = newAccessToken;
+      await AuthStorage.setItem("mmusic_access_token", newAccessToken);
+    }
+    if (newAccessExpiresAt !== undefined) {
+      accessTokenExpiresAt = Number(newAccessExpiresAt) || 0;
+      await AuthStorage.setItem("mmusic_access_exp", String(accessTokenExpiresAt));
+    }
+    if (newRefreshToken !== undefined && newRefreshToken !== null) {
+      refreshToken = newRefreshToken;
+      await AuthStorage.setItem("mmusic_refresh_token", newRefreshToken);
+    }
+    if (newCsrfToken) {
+      csrfToken = newCsrfToken;
+      await AuthStorage.setItem("mmusic_csrf_token", newCsrfToken);
+    }
+    if (authBroadcast) {
+      authBroadcast.postMessage({
+        type: "TOKENS_ROTATED",
+        accessToken,
+        accessTokenExpiresAt,
+        refreshToken,
+        csrfToken,
+      });
+    }
+  }
+
+  async function refreshSessionSingleFlight() {
+    if (refreshInFlightPromise) {
+      return refreshInFlightPromise;
+    }
+
+    refreshInFlightPromise = (async () => {
+      try {
+        const storedRefresh = refreshToken || (await AuthStorage.getItem("mmusic_refresh_token"));
+        const dev = getDeviceDescription();
+        const headers = { "Content-Type": "application/json" };
+        if (csrfToken) headers["X-CSRF-Token"] = csrfToken;
+
+        const res = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+          headers,
+          body: JSON.stringify({
+            refreshToken: storedRefresh || undefined,
+            deviceName: dev.deviceName,
+            platform: dev.platform,
+          }),
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          return { ok: false, status: res.status, invalidSession: true };
+        }
+        if (!res.ok) {
+          return { ok: false, status: res.status, invalidSession: false };
+        }
+
+        const data = await res.json();
+        await persistSessionTokens({
+          newAccessToken: data.accessToken || data.token || "",
+          newAccessExpiresAt: data.accessTokenExpiresAt || (Date.now() + 15 * 60 * 1000),
+          newRefreshToken: data.refreshToken !== undefined ? data.refreshToken : storedRefresh,
+          newCsrfToken: data.csrfToken || csrfToken,
+        });
+
+        if (data.user) {
+          currentUser = normalizeUserObject(data.user);
+          localStorage.setItem("mmusic_cached_user_profile", JSON.stringify(currentUser));
+        }
+
+        return { ok: true, data };
+      } catch (networkErr) {
+        return { ok: false, networkError: true, invalidSession: false };
+      } finally {
+        refreshInFlightPromise = null;
+      }
+    })();
+
+    return refreshInFlightPromise;
+  }
+
+  async function apiFetch(path, options = {}, allowRefresh = true) {
+    const isExpiringSoon = accessTokenExpiresAt > 0 && Date.now() > accessTokenExpiresAt - 30000;
+    if (allowRefresh && (!accessToken || isExpiringSoon) && (refreshToken || (await AuthStorage.getItem("mmusic_refresh_token")))) {
+      await refreshSessionSingleFlight();
+    }
+
+    const headers = Object.assign({}, options.headers || {});
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+    }
+    if (csrfToken && options.method && options.method !== "GET" && options.method !== "HEAD") {
+      headers["X-CSRF-Token"] = csrfToken;
+    }
+
+    const fetchOpts = Object.assign({}, options, {
+      credentials: "include",
+      headers,
+    });
+
+    const response = await fetch(`${API_BASE_URL}${path}`, fetchOpts);
+
+    if (response.status === 401 && allowRefresh) {
+      const refResult = await refreshSessionSingleFlight();
+      if (refResult.ok) {
+        const retryHeaders = Object.assign({}, options.headers || {});
+        if (accessToken) retryHeaders["Authorization"] = `Bearer ${accessToken}`;
+        if (csrfToken && options.method && options.method !== "GET" && options.method !== "HEAD") {
+          retryHeaders["X-CSRF-Token"] = csrfToken;
+        }
+        return fetch(`${API_BASE_URL}${path}`, Object.assign({}, options, {
+          credentials: "include",
+          headers: retryHeaders,
+        }));
+      }
+    }
+
+    return response;
+  }
+
+  // ============================================================================
+  // 3. РАЗДЕЛЬНОЕ ХРАНЕНИЕ ДАННЫХ ПОЛЬЗОВАТЕЛЕЙ И СИНХРОНИЗАЦИЯ С D1
+  // ============================================================================
+  function getUserStorageKey(suffix) {
+    const uidKey = currentUser && currentUser.id ? currentUser.id : "guest";
+    return `mmusic_${uidKey}_${suffix}`;
+  }
+
+  function loadUserScopedData() {
+    favoriteIds = new Set(JSON.parse(localStorage.getItem(getUserStorageKey("favs")) || "[]"));
+    recentTracksIds = JSON.parse(localStorage.getItem(getUserStorageKey("recent")) || "[]");
+    searchHistory = JSON.parse(
+      localStorage.getItem(getUserStorageKey("search_hist")) || '["Три дня дождя","Кино","Скриптонит"]'
+    );
+    realStats = JSON.parse(
+      localStorage.getItem(getUserStorageKey("stats")) || JSON.stringify(EMPTY_STATS)
+    );
+    const savedSettings = JSON.parse(localStorage.getItem(getUserStorageKey("settings")) || "{}");
+    if (typeof savedSettings.dynamicColorBySong === "boolean") {
+      dynamicColorBySong = savedSettings.dynamicColorBySong;
+      document.getElementById("dynColorSwitch").classList.toggle("on", dynamicColorBySong);
+      document.getElementById("potokModeText").textContent = dynamicColorBySong ? "Оттенок по песне" : "Обычная";
+    }
+    if (typeof savedSettings.amoled === "boolean") {
+      if (savedSettings.amoled) document.documentElement.setAttribute("data-amoled", "true");
+      else document.documentElement.removeAttribute("data-amoled");
+      document.getElementById("amoledSwitch").classList.toggle("on", savedSettings.amoled);
+    }
+  }
+
+  function applyServerLibraryPayload(lib) {
+    if (!lib || typeof lib !== "object") return;
+    if (Array.isArray(lib.favorites)) {
+      favoriteIds = new Set(lib.favorites);
+      localStorage.setItem(getUserStorageKey("favs"), JSON.stringify([...favoriteIds]));
+    }
+    if (Array.isArray(lib.recent)) {
+      recentTracksIds = lib.recent;
+      localStorage.setItem(getUserStorageKey("recent"), JSON.stringify(recentTracksIds));
+    }
+    if (Array.isArray(lib.searchHistory)) {
+      searchHistory = lib.searchHistory;
+      localStorage.setItem(getUserStorageKey("search_hist"), JSON.stringify(searchHistory));
+    }
+    if (lib.stats && typeof lib.stats.totalPlays === "number") {
+      realStats = Object.assign(JSON.parse(JSON.stringify(EMPTY_STATS)), lib.stats);
+      localStorage.setItem(getUserStorageKey("stats"), JSON.stringify(realStats));
+    }
+    if (lib.settings && typeof lib.settings === "object") {
+      localStorage.setItem(getUserStorageKey("settings"), JSON.stringify(lib.settings));
+      if (typeof lib.settings.dynamicColorBySong === "boolean") {
+        dynamicColorBySong = lib.settings.dynamicColorBySong;
+        document.getElementById("dynColorSwitch").classList.toggle("on", dynamicColorBySong);
+      }
+      if (typeof lib.settings.amoled === "boolean") {
+        if (lib.settings.amoled) document.documentElement.setAttribute("data-amoled", "true");
+        else document.documentElement.removeAttribute("data-amoled");
+        document.getElementById("amoledSwitch").classList.toggle("on", lib.settings.amoled);
+      }
+    }
+    if (lib.updatedAt) {
+      lastLibraryUpdatedAt = Number(lib.updatedAt) || Date.now();
+    }
+  }
+
+  async function saveRealStats() {
+    if (!currentUser) return;
+    const settingsObj = {
+      dynamicColorBySong,
+      amoled: document.documentElement.getAttribute("data-amoled") === "true",
+    };
+    localStorage.setItem(getUserStorageKey("favs"), JSON.stringify([...favoriteIds]));
+    localStorage.setItem(getUserStorageKey("recent"), JSON.stringify(recentTracksIds));
+    localStorage.setItem(getUserStorageKey("search_hist"), JSON.stringify(searchHistory));
+    localStorage.setItem(getUserStorageKey("stats"), JSON.stringify(realStats));
+    localStorage.setItem(getUserStorageKey("settings"), JSON.stringify(settingsObj));
+
+    try {
+      const res = await apiFetch("/api/user/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          favorites: [...favoriteIds],
+          recent: recentTracksIds,
+          searchHistory,
+          stats: realStats,
+          settings: settingsObj,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.updatedAt) lastLibraryUpdatedAt = Number(data.updatedAt) || Date.now();
+      }
+    } catch (_) {}
+  }
+
+  function resetRealStats() {
+    realStats = JSON.parse(JSON.stringify(EMPTY_STATS));
+    recentTracksIds = [];
+    saveRealStats();
+    renderStatsScreen();
+    renderAllViews();
+  }
+
+  function recordRealPlayStart(track) {
+    if (!track) return;
+    realStats.totalPlays += 1;
+    if (!realStats.uniqueTrackIds.includes(track.id)) {
+      realStats.uniqueTrackIds.push(track.id);
+    }
+    realStats.trackPlaysMap[track.id] = (realStats.trackPlaysMap[track.id] || 0) + 1;
+
+    const now = new Date();
+    const dayKey = now.toISOString().slice(0, 10);
+    if (!realStats.daysActive.includes(dayKey)) realStats.daysActive.push(dayKey);
+
+    const hourKey = String(now.getHours()).padStart(2, "0") + ":00";
+    realStats.hoursMap[hourKey] = (realStats.hoursMap[hourKey] || 0) + 1;
+
+    const weekdays = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+    const wd = weekdays[now.getDay()];
+    realStats.weekdaysMap[wd] = (realStats.weekdaysMap[wd] || 0) + 1;
+
+    const primaryArtist = (track.artist || "Неизвестный").split(",")[0].trim();
+    if (track.cover) realStats.artistCovers[primaryArtist] = track.cover;
+
+    recentTracksIds = [track.id, ...recentTracksIds.filter((id) => id !== track.id)].slice(0, 50);
+    saveRealStats();
+    renderStatsScreen();
+  }
+
+  function recordRealListeningDelta(deltaSec, track) {
+    if (!track || deltaSec <= 0 || deltaSec > 5) return;
+    realStats.totalSeconds += deltaSec;
+    const primaryArtist = (track.artist || "Неизвестный").split(",")[0].trim();
+    realStats.artistsSeconds[primaryArtist] = (realStats.artistsSeconds[primaryArtist] || 0) + deltaSec;
+    saveRealStats();
+  }
+
+  // ============================================================================
+  // 4. ПОИСК И ПАГИНАЦИЯ YOUTUBE MUSIC ЧЕРЕЗ СЕРВЕРНЫЙ API
+  // ============================================================================
+  async function fetchTracksFromCatalog(query, appendPage = false) {
+    const cleanQ = (query || "").trim();
+    if (!cleanQ) return;
+
+    const badge = document.getElementById("parserActiveBadge");
+    badge.textContent = "Загрузка из YouTube...";
+
+    try {
+      const pageParam = appendPage && nextSearchPageToken ? `&pageToken=${encodeURIComponent(nextSearchPageToken)}` : "";
+      const res = await fetch(`${API_BASE_URL}/api/youtube/search?q=${encodeURIComponent(cleanQ)}${pageParam}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        badge.textContent = "Ошибка API";
+        showNotice(data.error || "Не удалось выполнить поиск YouTube Music");
+        return;
+      }
+
+      const incoming = data.tracks || [];
+      nextSearchPageToken = data.nextPageToken || null;
+      lastSearchQuery = cleanQ;
+
+      document.getElementById("loadMoreSearchBtn").style.display = nextSearchPageToken ? "flex" : "none";
+
+      if (incoming.length > 0) {
+        registerTracks(incoming);
+        displayTracks = appendPage ? [...displayTracks, ...incoming] : incoming;
+        badge.textContent = `Найдено: ${displayTracks.length}`;
+        renderAllViews();
+        renderSearchResults(displayTracks);
+      } else if (!appendPage) {
+        displayTracks = [];
+        badge.textContent = "Ничего не найдено";
+        renderSearchResults([]);
+      }
+    } catch (err) {
+      badge.textContent = "Офлайн-режим";
+    }
+  }
+
+  function loadNextSearchPage() {
+    if (lastSearchQuery && nextSearchPageToken) {
+      fetchTracksFromCatalog(lastSearchQuery, true);
+    }
+  }
+
+  // ============================================================================
+  // 5. УПРАВЛЕНИЕ ПЛЕЕРОМ
+  // ============================================================================
+  function registerTracks(list) {
+    list.forEach((t) => knownTracksMap.set(t.id, t));
+  }
+
+  function playSpecificTrack(id) {
+    const found = knownTracksMap.get(id);
+    if (!found) return;
+
+    if (found.embeddable === false) {
+      showNotice(found.restrictionReason || "Этот трек недоступен для встроенного воспроизведения по решению правообладателя.");
+      return;
+    }
+
+    if (!currentQueue.some((t) => t.id === id)) {
+      currentQueue = [...displayTracks];
+    }
+    currentIndex = currentQueue.findIndex((t) => t.id === id);
+    if (currentIndex === -1) {
+      currentQueue = [found, ...displayTracks];
+      currentIndex = 0;
+    }
+    startPlaybackImmediate();
+  }
+
+  function startPlaybackImmediate() {
+    const cur = currentQueue[currentIndex];
+    if (!cur) return;
+
+    if (cur.embeddable === false) {
+      showNotice(cur.restrictionReason || "Трек ограничен правообладателем.");
+      return;
+    }
+
+    document.getElementById("miniPlayer").classList.remove("hidden");
+    lastTimeUpdatePoint = 0;
+    currentTrackCountedAsPlay = false;
+
+    audio.pause();
+    clearInterval(ytProgressTimer);
+
+    if (dynamicColorBySong && cur.cover) {
+      extractColorFromCover(cur.cover);
+    }
+    syncPlayerUI();
+    renderAllViews();
+
+    const ytMount = document.getElementById("ytPlayerMount");
+
+    if (cur.ytVideoId) {
+      activeEngine = "yt";
+      ytMount.style.display = "block";
+      document.getElementById("fpSourceBadge").textContent = "YouTube Music";
+
+      if (ytReady && ytPlayer && ytPlayer.loadVideoById) {
+        ytPlayer.loadVideoById(cur.ytVideoId);
+        ytPlayer.playVideo();
+      } else {
+        showNotice("Инициализация плеера YouTube...");
+      }
+      return;
+    }
+
+    if (cur.url) {
+      activeEngine = "audio";
+      ytMount.style.display = "none";
+      if (ytReady && ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+
+      audio.src = cur.url;
+      audio.currentTime = 0;
+      audio.play().then(() => {
+        isPlayingState = true;
+        document.getElementById("fpSourceBadge").textContent = "Локальный файл";
+        if (!currentTrackCountedAsPlay) {
+          currentTrackCountedAsPlay = true;
+          recordRealPlayStart(cur);
+        }
+        syncPlayerUI();
+      }).catch(() => {
+        showNotice("Не удалось воспроизвести локальный аудиофайл.");
+      });
+    }
+  }
+
+  function togglePlay() {
+    if (currentIndex === -1) {
+      togglePotokPlay();
+      return;
+    }
+    if (activeEngine === "yt" && ytReady && ytPlayer) {
+      const st = ytPlayer.getPlayerState();
+      if (st === YT.PlayerState.PLAYING) {
+        ytPlayer.pauseVideo();
+        isPlayingState = false;
+      } else {
+        ytPlayer.playVideo();
+        isPlayingState = true;
+      }
+      syncPlayerUI();
+      return;
+    }
+    if (audio.paused) {
+      audio.play().then(() => { isPlayingState = true; syncPlayerUI(); }).catch(() => {});
+    } else {
+      audio.pause();
+      isPlayingState = false;
+      syncPlayerUI();
+    }
+  }
+
+  function togglePotokPlay() {
+    if (currentIndex !== -1 && isPlayingState) {
+      togglePlay();
+      return;
+    }
+    const playable = displayTracks.filter((t) => t.embeddable !== false);
+    if (!playable.length) return;
+    currentQueue = [...playable];
+    currentIndex = 0;
+    startPlaybackImmediate();
+  }
+
+  function nextTrack() {
+    if (!currentQueue.length) return;
+    currentIndex = isShuffle
+      ? Math.floor(Math.random() * currentQueue.length)
+      : (currentIndex + 1) % currentQueue.length;
+    startPlaybackImmediate();
+  }
+
+  function prevTrack() {
+    if (!currentQueue.length) return;
+    if (activeEngine === "yt" && ytReady && ytPlayer && ytPlayer.getCurrentTime && ytPlayer.getCurrentTime() > 3) {
+      ytPlayer.seekTo(0, true);
+      return;
+    }
+    if (activeEngine === "audio" && audio.currentTime > 3) {
+      audio.currentTime = 0;
+      return;
+    }
+    currentIndex = (currentIndex - 1 + currentQueue.length) % currentQueue.length;
+    startPlaybackImmediate();
+  }
+
+  function seekAudio(pct) {
+    const cur = currentQueue[currentIndex];
+    if (activeEngine === "yt" && ytReady && ytPlayer && ytPlayer.seekTo) {
+      const dur = ytPlayer.getDuration() || (cur && cur.durationSec) || 180;
+      const target = (pct / 100) * dur;
+      ytPlayer.seekTo(target, true);
+      lastTimeUpdatePoint = target;
+      return;
+    }
+    const dur = audio.duration || (cur && cur.durationSec) || 180;
+    audio.currentTime = (pct / 100) * dur;
+    lastTimeUpdatePoint = audio.currentTime;
+  }
+
+  audio.addEventListener("play", () => { if (activeEngine === "audio") { isPlayingState = true; syncPlayerUI(); } });
+  audio.addEventListener("pause", () => { if (activeEngine === "audio") { isPlayingState = false; syncPlayerUI(); } });
+  audio.addEventListener("ended", () => { if (activeEngine === "audio" && !isRepeat) nextTrack(); });
+  audio.addEventListener("timeupdate", () => {
+    if (activeEngine !== "audio") return;
+    const cur = currentQueue[currentIndex];
+    const dur = audio.duration || (cur && cur.durationSec) || 180;
+    const pct = Math.min(100, (audio.currentTime / dur) * 100);
+    const delta = audio.currentTime - lastTimeUpdatePoint;
+    if (delta > 0 && delta < 3) recordRealListeningDelta(delta, cur);
+    lastTimeUpdatePoint = audio.currentTime;
+    document.getElementById("miniBar").style.width = `${pct}%`;
+    document.getElementById("seekSlider").value = pct;
+    document.getElementById("curTime").textContent = fmtTime(audio.currentTime);
+    document.getElementById("durTime").textContent = fmtTime(dur);
+  });
+
+  // ============================================================================
+  // 6. РЕГИСТРАЦИЯ И ВХОД ПО ЛОГИНУ И ПАРОЛЮ, АВТОВОССТАНОВЛЕНИЕ И СИНХРОНИЗАЦИЯ
+  // ============================================================================
+  function getDeviceDescription() {
+    const ua = navigator.userAgent || "Web Client";
+    let platform = navigator.platform || "Web";
+    if (/Android/i.test(ua)) platform = "Android";
+    else if (/iPhone|iPad/i.test(ua)) platform = "iOS";
+    else if (/Win/i.test(platform)) platform = "Windows";
+    else if (/Mac/i.test(platform)) platform = "macOS";
+    return { deviceName: `${platform} (${ua.slice(0, 48)})`, platform };
+  }
+
+  function normalizeUserObject(u) {
+    if (!u) return null;
+    const serialNum = Number(u.serial || 1);
+    const formattedPublicId = u.publicId || u.uid || `#MM-${10000 + serialNum}`;
+    return {
+      id: u.id,
+      username: u.username || u.login || "user",
+      name: u.displayName || u.name || u.username || "Пользователь",
+      publicId: formattedPublicId,
+      uid: formattedPublicId,
+      serial: serialNum,
+      avatarStyle: u.avatarStyle || "style-red",
+      avatarIcon: u.avatarIcon || "graphic_eq",
+      registeredAt: Number(u.registeredAt || u.createdAt || Date.now()),
+      updatedAt: Number(u.updatedAt || Date.now()),
+      role: u.role || "user",
+    };
+  }
+
+  function togglePasswordVisibility(inputId, iconId) {
+    const inp = document.getElementById(inputId);
+    const ic = document.getElementById(iconId);
+    if (!inp || !ic) return;
+    if (inp.type === "password") {
+      inp.type = "text";
+      ic.textContent = "visibility_off";
+    } else {
+      inp.type = "password";
+      ic.textContent = "visibility";
+    }
+  }
+
+  async function restoreSessionOnStartup() {
+    document.getElementById("backendApiUrlInput").value = API_BASE_URL;
+    const bootOverlay = document.getElementById("bootOverlay");
+    const bootStatus = document.getElementById("bootStatusText");
+
+    accessToken = await AuthStorage.getItem("mmusic_access_token");
+    accessTokenExpiresAt = Number(await AuthStorage.getItem("mmusic_access_exp")) || 0;
+    refreshToken = await AuthStorage.getItem("mmusic_refresh_token");
+    csrfToken = await AuthStorage.getItem("mmusic_csrf_token");
+
+    const cachedProfileRaw = localStorage.getItem("mmusic_cached_user_profile");
+    const cachedProfile = cachedProfileRaw ? normalizeUserObject(JSON.parse(cachedProfileRaw)) : null;
+
+    try {
+      bootStatus.textContent = "Проверка аккаунта...";
+      const res = await apiFetch("/api/auth/me", { method: "GET" }, true);
+
+      if (res.ok) {
+        const data = await res.json();
+        currentUser = normalizeUserObject(data.user);
+        lastProfileUpdatedAt = currentUser.updatedAt || Date.now();
+        localStorage.setItem("mmusic_cached_user_profile", JSON.stringify(currentUser));
+
+        loadUserScopedData();
+        if (data.library) {
+          applyServerLibraryPayload(data.library);
+        }
+
+        bootOverlay.classList.add("hidden");
+        document.getElementById("authOverlay").classList.add("hidden");
+        applyUserAvatarUI();
+        renderAllViews();
+        startRealtimeStatePolling();
+        loadSessionsAndHistory();
+        return;
+      }
+
+      if (res.status === 401 || res.status === 403) {
+        await purgeClientAuthStateAndShowLogin();
+        bootOverlay.classList.add("hidden");
+        return;
+      }
+
+      // Ошибка сервера 5xx: не удаляем сессию, если есть кеш профиля
+      if (cachedProfile && (accessToken || refreshToken)) {
+        enterOfflineCachedMode(cachedProfile, "Сервер временно недоступен. Открыт сохранённый профиль.");
+        bootOverlay.classList.add("hidden");
+        return;
+      }
+
+      await purgeClientAuthStateAndShowLogin();
+      bootOverlay.classList.add("hidden");
+    } catch (networkErr) {
+      // Временное отсутствие интернета: НЕ удаляем сохранённую сессию и восстанавливаем кеш профиля
+      if (cachedProfile && (accessToken || refreshToken)) {
+        enterOfflineCachedMode(cachedProfile, "Нет соединения с сервером. Вход восстановлен локально.");
+        bootOverlay.classList.add("hidden");
+        return;
+      }
+      bootOverlay.classList.add("hidden");
+      document.getElementById("authOverlay").classList.remove("hidden");
+      goToAuthStep("welcome");
+    }
+  }
+
+  function enterOfflineCachedMode(cachedProfile, noticeMessage) {
+    currentUser = cachedProfile;
+    loadUserScopedData();
+    document.getElementById("authOverlay").classList.add("hidden");
+    applyUserAvatarUI();
+    renderAllViews();
+    startRealtimeStatePolling();
+    showNotice(noticeMessage, 5500);
+  }
+
+  async function submitCredentialsAuth() {
+    const isReg = currentAuthMode === "register";
+    const usernameInput = document.getElementById("authUsernameInput").value.trim();
+    // Пароль НЕ изменяем автоматически: НЕ обрезаем пробелы и НЕ меняем регистр
+    const rawPassword = document.getElementById("authPasswordInput").value;
+    const rawConfirmPassword = document.getElementById("authPasswordConfirmInput").value;
+    const displayNameInput = document.getElementById("authDisplayNameInput").value.trim();
+    const errEl = document.getElementById("credentialsStepError");
+    const submitBtn = document.getElementById("submitCredentialsBtn");
+
+    errEl.style.display = "none";
+
+    if (!/^[a-zA-Z0-9_-]{3,24}$/.test(usernameInput)) {
+      errEl.textContent = "Логин должен содержать от 3 до 24 символов: латинские буквы, цифры, «_» или «-».";
+      errEl.style.display = "block";
+      return;
+    }
+
+    if (rawPassword.length < 8 || rawPassword.length > 72) {
+      errEl.textContent = isReg
+        ? "Пароль должен содержать от 8 до 72 символов."
+        : "Неверный логин или пароль";
+      errEl.style.display = "block";
+      return;
+    }
+
+    if (isReg && rawPassword !== rawConfirmPassword) {
+      errEl.textContent = "Введённые пароли не совпадают.";
+      errEl.style.display = "block";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = isReg ? "Создание аккаунта..." : "Вход...";
+
+    try {
+      const dev = getDeviceDescription();
+      const endpoint = isReg ? "/api/auth/register" : "/api/auth/login";
+      const payload = {
+        username: usernameInput,
+        password: rawPassword,
+        deviceName: dev.deviceName,
+        platform: dev.platform,
+      };
+
+      if (isReg) {
+        payload.displayName = displayNameInput || usernameInput;
+        payload.avatarStyle = selectedTempStyle;
+        payload.avatarIcon = selectedTempIcon;
+      }
+
+      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        if (!isReg && res.status === 401) {
+          errEl.textContent = "Неверный логин или пароль";
+        } else {
+          errEl.textContent = data.error || (isReg ? "Не удалось зарегистрировать аккаунт" : "Неверный логин или пароль");
+        }
+        errEl.style.display = "block";
+        return;
+      }
+
+      document.getElementById("authPasswordInput").value = "";
+      document.getElementById("authPasswordConfirmInput").value = "";
+
+      await completeClientLogin(data);
+    } catch (e) {
+      errEl.textContent = "Нет связи с сервером. Проверьте интернет или адрес API.";
+      errEl.style.display = "block";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = isReg ? "Зарегистрироваться" : "Войти";
+    }
+  }
+
+  async function completeClientLogin(authData) {
+    await persistSessionTokens({
+      newAccessToken: authData.accessToken || authData.token || "",
+      newAccessExpiresAt: authData.accessTokenExpiresAt || (Date.now() + 15 * 60 * 1000),
+      newRefreshToken: authData.refreshToken || "",
+      newCsrfToken: authData.csrfToken || "",
+    });
+
+    currentUser = normalizeUserObject(authData.user);
+    lastProfileUpdatedAt = currentUser.updatedAt || Date.now();
+    localStorage.setItem("mmusic_cached_user_profile", JSON.stringify(currentUser));
+
+    loadUserScopedData();
+    if (authData.library) {
+      applyServerLibraryPayload(authData.library);
+    }
+
+    document.getElementById("authOverlay").classList.add("hidden");
+    applyUserAvatarUI();
+    renderAllViews();
+    startRealtimeStatePolling();
+    loadSessionsAndHistory();
+
+    if (authBroadcast) {
+      authBroadcast.postMessage({ type: "USER_UPDATED", user: currentUser });
+    }
+  }
+
+  // Периодический опрос состояния текущего пользователя каждые 5 секунд (ожидаемая задержка до 5 с между устройствами)
+  function startRealtimeStatePolling() {
+    clearInterval(statePollingTimer);
+    statePollingTimer = setInterval(async () => {
+      if (!currentUser || document.visibilityState !== "visible") return;
+      try {
+        const res = await apiFetch(
+          `/api/user/state?profileSince=${lastProfileUpdatedAt}&libSince=${lastLibraryUpdatedAt}`,
+          { method: "GET" },
+          true
+        );
+        if (res.status === 401) {
+          await purgeClientAuthStateAndShowLogin();
+          return;
+        }
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.user) {
+          const incomingUser = normalizeUserObject(data.user);
+          if (incomingUser.updatedAt >= lastProfileUpdatedAt) {
+            currentUser = incomingUser;
+            lastProfileUpdatedAt = incomingUser.updatedAt;
+            localStorage.setItem("mmusic_cached_user_profile", JSON.stringify(currentUser));
+            applyUserAvatarUI();
+          }
+        }
+        if (data.library && Number(data.library.updatedAt || 0) > lastLibraryUpdatedAt) {
+          applyServerLibraryPayload(data.library);
+          renderAllViews();
+        }
+      } catch (_) {}
+    }, 5000);
+  }
+
+  async function saveProfileChangesToServer() {
+    if (!currentUser) return;
+    const newName = document.getElementById("profileEditNameInput").value.trim();
+    if (!newName && !currentUser.avatarStyle) return;
+
+    try {
+      const res = await apiFetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          displayName: newName || currentUser.name,
+          avatarStyle: currentUser.avatarStyle,
+          avatarIcon: currentUser.avatarIcon,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        showNotice(data.error || "Не удалось обновить профиль на сервере");
+        return;
+      }
+      if (data.user) {
+        currentUser = normalizeUserObject(data.user);
+        lastProfileUpdatedAt = currentUser.updatedAt || Date.now();
+        localStorage.setItem("mmusic_cached_user_profile", JSON.stringify(currentUser));
+        document.getElementById("profileEditNameInput").value = "";
+        applyUserAvatarUI();
+        if (authBroadcast) {
+          authBroadcast.postMessage({ type: "USER_UPDATED", user: currentUser });
+        }
+        showNotice("Профиль мгновенно обновлён");
+      }
+    } catch (_) {
+      showNotice("Сервер недоступен: не удалось сохранить изменения профиля");
+    }
+  }
+
+  async function loadSessionsAndHistory() {
+    if (!currentUser) return;
+    try {
+      const res = await apiFetch("/api/auth/sessions", { method: "GET" });
+      if (!res.ok) return;
+      const data = await res.json();
+
+      const activeBox = document.getElementById("activeSessionsContainer");
+      const historyBox = document.getElementById("loginHistoryContainer");
+
+      activeBox.innerHTML = (data.sessions || []).map((s) => {
+        const isCurrent = s.id === data.currentSessionId;
+        return `
+          <div class="session-item-row">
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13px;font-weight:700;color:#fff">
+                ${escapeHtml(s.device_name)} ${isCurrent ? '<span style="color:var(--md-primary)">(Текущее)</span>' : ""}
+              </div>
+              <div style="font-size:11px;color:#8e8e93;margin-top:2px">
+                Подсеть: ${escapeHtml(s.ip_masked)} • Активность: ${formatRussianRegDate(s.last_active_at)}
+              </div>
+            </div>
+            ${!isCurrent ? `<button class="lib-pill-btn" style="height:30px;padding:0 10px;font-size:11px;color:#ff6b6b" onclick="revokeSpecificSession('${escapeHtml(s.id)}')">Завершить</button>` : ""}
+          </div>
+        `;
+      }).join("");
+
+      historyBox.innerHTML = (data.history || []).slice(0, 8).map((h) => `
+        <div style="font-size:12px;color:#9e9aa4;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <b style="color:#fff">${escapeHtml(h.auth_method)}</b> • ${escapeHtml(h.platform)} (${escapeHtml(h.ip_masked)})<br>
+          <span>${formatRussianRegDate(h.created_at)}</span>
+        </div>
+      `).join("");
+    } catch (_) {}
+  }
+
+  async function revokeSpecificSession(sessionId) {
+    if (!currentUser) return;
+    await apiFetch("/api/auth/revoke-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId }),
+    });
+    loadSessionsAndHistory();
+  }
+
+  async function logoutCurrentSession() {
+    try {
+      const storedRefresh = refreshToken || (await AuthStorage.getItem("mmusic_refresh_token"));
+      await apiFetch("/api/auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: storedRefresh || undefined }),
+      }, false);
+    } catch (_) {}
+    if (authBroadcast) authBroadcast.postMessage({ type: "LOGGED_OUT" });
+    await purgeClientAuthStateAndShowLogin();
+  }
+
+  async function logoutAllDevices() {
+    if (!currentUser) return;
+    try {
+      await apiFetch("/api/auth/logout-all", { method: "POST" }, true);
+    } catch (_) {}
+    if (authBroadcast) authBroadcast.postMessage({ type: "LOGGED_OUT" });
+    await purgeClientAuthStateAndShowLogin();
+  }
+
+  async function purgeClientAuthStateAndShowLogin() {
+    clearInterval(statePollingTimer);
+    clearInterval(tenureInterval);
+    accessToken = "";
+    accessTokenExpiresAt = 0;
+    refreshToken = "";
+    csrfToken = "";
+    currentUser = null;
+
+    await AuthStorage.removeItem("mmusic_access_token");
+    await AuthStorage.removeItem("mmusic_access_exp");
+    await AuthStorage.removeItem("mmusic_refresh_token");
+    await AuthStorage.removeItem("mmusic_csrf_token");
+    localStorage.removeItem("mmusic_cached_user_profile");
+
+    favoriteIds = new Set();
+    recentTracksIds = [];
+    realStats = JSON.parse(JSON.stringify(EMPTY_STATS));
+    renderAllViews();
+    document.getElementById("authOverlay").classList.remove("hidden");
+    goToAuthStep("welcome");
+  }
+
+  function saveBackendApiUrl() {
+    const val = document.getElementById("backendApiUrlInput").value.trim().replace(/\/+$/, "");
+    if (!val) return;
+    API_BASE_URL = val;
+    localStorage.setItem("mmusic_api_base_url", API_BASE_URL);
+    showNotice("Адрес серверного API сохранён");
+    fetchTracksFromCatalog("Три дня дождя");
+  }
+
+  function formatRussianRegDate(ts) {
+    if (!ts) return "—";
+    return new Date(Number(ts)).toLocaleString("ru-RU", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  function updateRegistrationTenureCounter() {
+    const el = document.getElementById("profileTenureCounter");
+    if (!currentUser || !currentUser.registeredAt || !el) return;
+    const diffSec = Math.max(0, Math.floor((Date.now() - currentUser.registeredAt) / 1000));
+    const days = Math.floor(diffSec / 86400);
+    const hrs = String(Math.floor((diffSec % 86400) / 3600)).padStart(2, "0");
+    const mins = String(Math.floor((diffSec % 3600) / 60)).padStart(2, "0");
+    const secs = String(diffSec % 60).padStart(2, "0");
+    el.textContent = `${days} дн. ${hrs}:${mins}:${secs}`;
+  }
+
+  function goToAuthStep(stepName) {
+    document.querySelectorAll(".auth-step").forEach((s) => s.classList.remove("active"));
+    if (stepName === "welcome") document.getElementById("authStepWelcome").classList.add("active");
+    if (stepName === "credentials") document.getElementById("authStepCredentials").classList.add("active");
+  }
+
+  function openCredentialsAuthFlow(mode) {
+    currentAuthMode = mode;
+    const isReg = mode === "register";
+    document.getElementById("authStepCredentialsHeader").textContent = isReg ? "Создание аккаунта" : "Вход в аккаунт";
+    document.getElementById("avatarSelectBlock").style.display = isReg ? "block" : "none";
+    document.getElementById("nameInputBoxWrap").style.display = isReg ? "flex" : "none";
+    document.getElementById("confirmPasswordWrap").style.display = isReg ? "block" : "none";
+    document.getElementById("authPasswordInput").setAttribute("autocomplete", isReg ? "new-password" : "current-password");
+    document.getElementById("submitCredentialsBtn").textContent = isReg ? "Зарегистрироваться" : "Войти";
+    document.getElementById("toggleAuthModeBtn").textContent = isReg ? "Уже есть аккаунт? Войти" : "Создать новый аккаунт";
+    document.getElementById("credentialsStepError").style.display = "none";
+    goToAuthStep("credentials");
+  }
+
+  function toggleBetweenLoginAndRegister() {
+    openCredentialsAuthFlow(currentAuthMode === "register" ? "login" : "register");
+  }
+
+  function setAvatarStyle(styleClass, iconName, btnEl) {
+    selectedTempStyle = styleClass;
+    selectedTempIcon = iconName;
+    const box = document.getElementById("authMd3Avatar");
+    box.className = `md3-user-avatar ${styleClass}`;
+    document.getElementById("authMd3AvatarIcon").textContent = iconName;
+    if (btnEl) {
+      document.querySelectorAll(".avatar-style-pill").forEach((b) => b.classList.remove("active"));
+      btnEl.classList.add("active");
+    }
+  }
+
+  async function cycleUserAvatarStyle() {
+    if (!currentUser) return;
+    const styles = [
+      { cls: "style-red", icon: "graphic_eq", label: "Красная" },
+      { cls: "style-black", icon: "album", label: "Чёрная" },
+      { cls: "style-song", icon: "auto_awesome", label: "По песне" },
+      { cls: "style-green", icon: "equalizer", label: "Зелёная" },
+      { cls: "style-violet", icon: "headphones", label: "Фиолетовая" },
+    ];
+    const idx = styles.findIndex((s) => s.cls === currentUser.avatarStyle);
+    const next = styles[(idx + 1) % styles.length];
+    currentUser.avatarStyle = next.cls;
+    currentUser.avatarIcon = next.icon;
+    document.getElementById("currentStyleLabel").textContent = next.label;
+    applyUserAvatarUI();
+    await saveProfileChangesToServer();
+  }
+
+  function applyUserAvatarUI() {
+    if (!currentUser) return;
+    const pBox = document.getElementById("profileAvatarBox");
+    const pIcon = document.getElementById("profileAvatarIcon");
+    if (pBox && pIcon) {
+      pBox.className = `md3-user-avatar ${currentUser.avatarStyle || "style-red"}`;
+      pIcon.textContent = currentUser.avatarIcon || "graphic_eq";
+    }
+    document.getElementById("profileNameText").textContent = currentUser.name;
+    document.getElementById("profileHandleText").textContent = `@${currentUser.username}`;
+    document.getElementById("profileProviderBadge").textContent = "Аккаунт D1 • Постоянный ID";
+    document.getElementById("profileUidValue").textContent = currentUser.publicId || currentUser.uid;
+    document.getElementById("profileSerialValue").textContent = `Пользователь №${currentUser.serial}`;
+    document.getElementById("profileRegDateText").textContent = formatRussianRegDate(currentUser.registeredAt);
+
+    clearInterval(tenureInterval);
+    updateRegistrationTenureCounter();
+    tenureInterval = setInterval(updateRegistrationTenureCounter, 1000);
+  }
+
+  // ============================================================================
+  // 7. ОТРИСОВКА СПИСКОВ, ОБЛОЖЕК И ЭКРАНОВ
+  // ============================================================================
+  let searchTimer = null;
+  function handleSearchInput(val) {
+    clearTimeout(searchTimer);
+    const q = val.trim();
+    if (!q) {
+      renderSearchResults(displayTracks.slice(0, 10));
+      return;
+    }
+    document.getElementById("searchHeadingTitle").textContent = `Поиск: «${q}»`;
+    searchTimer = setTimeout(() => {
+      fetchTracksFromCatalog(q, false);
+    }, 400);
+  }
+
+  function commitSearchHistory(val) {
+    const q = val.trim();
+    if (!q) return;
+    searchHistory = [q, ...searchHistory.filter((x) => x.toLowerCase() !== q.toLowerCase())].slice(0, 5);
+    saveRealStats();
+    renderSearchHistory();
+    fetchTracksFromCatalog(q, false);
+  }
+
+  function removeHistoryItem(idx, ev) {
+    ev.stopPropagation();
+    searchHistory.splice(idx, 1);
+    saveRealStats();
+    renderSearchHistory();
+  }
+
+  function selectHistoryQuery(q) {
+    document.getElementById("searchInput").value = q;
+    handleSearchInput(q);
+  }
+
+  function renderSearchHistory() {
+    const box = document.getElementById("searchHistoryContainer");
+    box.innerHTML = searchHistory.map((item, idx) => `
+      <div class="history-item-row" onclick="selectHistoryQuery('${escapeHtml(item)}')">
+        <div class="history-left"><span class="icon">history</span><span>${escapeHtml(item)}</span></div>
+        <span class="icon" style="color:#8e8e93;font-size:20px" onclick="removeHistoryItem(${idx}, event)">close</span>
+      </div>
+    `).join("");
+  }
+
+  function renderSearchResults(list) {
+    document.getElementById("searchResultsList").innerHTML = renderTrackRowsHtml(list);
+  }
+
+  function quickSearchArtist(artistName) {
+    switchTab("search");
+    document.getElementById("searchInput").value = artistName;
+    handleSearchInput(artistName);
+  }
+
+  function renderTrackRowsHtml(list) {
+    if (!list.length) {
+      return `<div style="color:#8e8e93;font-size:14px;text-align:center;padding:24px 0">Треки не найдены</div>`;
+    }
+    const activeId = currentQueue[currentIndex]?.id;
+    return list.map((t) => {
+      const restricted = t.embeddable === false;
+      return `
+        <div class="clean-track-row ${t.id === activeId ? "playing" : ""} ${restricted ? "disabled-track" : ""}" onclick="playSpecificTrack('${escapeHtml(t.id)}')">
+          <img class="clean-track-cover" src="${t.cover || DEFAULT_COVER_SVG}" alt="" loading="lazy" onerror="this.onerror=null;this.src=DEFAULT_COVER_SVG">
+          <div class="clean-track-info">
+            <div class="clean-track-title">${escapeHtml(t.title)}</div>
+            <div class="clean-track-artist">${escapeHtml(t.artist)} ${restricted ? "• Недоступно вне YouTube" : ""}</div>
+          </div>
+          <span class="clean-dur-pill">${fmtTime(t.durationSec)}</span>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderStatsScreen() {
+    document.getElementById("statTotalPlays").textContent = realStats.totalPlays;
+    document.getElementById("statUniqueTracks").textContent = realStats.uniqueTrackIds.length;
+    document.getElementById("statTotalHours").textContent = (realStats.totalSeconds / 3600).toFixed(1);
+    document.getElementById("profileStatPreview").textContent = `${realStats.totalPlays} просл.`;
+
+    const daysCount = realStats.daysActive.length;
+    document.getElementById("statStreakDays").textContent = daysCount;
+    document.getElementById("statTracksPerDay").textContent = daysCount > 0 ? Math.round(realStats.totalPlays / daysCount) : 0;
+    document.getElementById("statTotalArtists").textContent = Object.keys(realStats.artistsSeconds).length;
+
+    const topHourEntry = Object.entries(realStats.hoursMap).sort((a, b) => b[1] - a[1])[0];
+    document.getElementById("statPeakHour").textContent = topHourEntry ? topHourEntry[0] : "—";
+
+    const topWeekdayEntry = Object.entries(realStats.weekdaysMap).sort((a, b) => b[1] - a[1])[0];
+    document.getElementById("statFavWeekday").textContent = topWeekdayEntry ? topWeekdayEntry[0] : "—";
+
+    const sortedArtists = Object.entries(realStats.artistsSeconds).sort((a, b) => b[1] - a[1]);
+    const artistsContainer = document.getElementById("statsTopArtistsRow");
+    if (!sortedArtists.length) {
+      artistsContainer.innerHTML = `<div style="color:#8e8e93;font-size:13px;padding:8px 0">Пока нет прослушанных артистов</div>`;
+    } else {
+      artistsContainer.innerHTML = sortedArtists.map(([name, secs]) => {
+        const mins = Math.max(1, Math.round(secs / 60));
+        const cov = realStats.artistCovers[name] || DEFAULT_COVER_SVG;
+        return `
+          <div class="stat-artist-item" onclick="quickSearchArtist('${escapeHtml(name)}')">
+            <img src="${cov}" alt="" onerror="this.onerror=null;this.src=DEFAULT_COVER_SVG">
+            <div class="stat-artist-name">${escapeHtml(name)}</div>
+            <div class="stat-artist-time">${mins} мин</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    const sortedTrackEntries = Object.entries(realStats.trackPlaysMap).sort((a, b) => b[1] - a[1]);
+    const tracksContainer = document.getElementById("statsTopTracksList");
+    if (!sortedTrackEntries.length) {
+      tracksContainer.innerHTML = `<div style="color:#8e8e93;font-size:13px;padding:8px 0">Включите любой трек для учёта в статистике</div>`;
+    } else {
+      tracksContainer.innerHTML = sortedTrackEntries.slice(0, 10).map(([id, count], idx) => {
+        const t = knownTracksMap.get(id);
+        if (!t) return "";
+        return `
+          <div class="clean-track-row" onclick="playSpecificTrack('${escapeHtml(t.id)}')">
+            <span style="width:22px;font-size:14px;font-weight:700;color:#8e8e93">${idx + 1}</span>
+            <img class="clean-track-cover" style="width:46px;height:46px" src="${t.cover || DEFAULT_COVER_SVG}" alt="" onerror="this.onerror=null;this.src=DEFAULT_COVER_SVG">
+            <div class="clean-track-info">
+              <div class="clean-track-title">${escapeHtml(t.title)}</div>
+              <div class="clean-track-artist">${escapeHtml(t.artist)}</div>
+            </div>
+            <span style="font-size:13px;font-weight:700;color:#8e8e93;padding-right:8px">${count}</span>
+          </div>
+        `;
+      }).join("");
+    }
+  }
+
+  function renderAllViews() {
+    bindCoverImage(document.getElementById("heroMainArt"), displayTracks[0]?.cover);
+    bindCoverImage(document.getElementById("heroTopRightArt"), displayTracks[1]?.cover);
+    bindCoverImage(document.getElementById("heroMidRightArt"), displayTracks[2]?.cover);
+
+    const favTracks = [...knownTracksMap.values()].filter((t) => favoriteIds.has(t.id));
+    const recTracks = recentTracksIds.map((id) => knownTracksMap.get(id)).filter(Boolean);
+
+    document.getElementById("recentCountLabel").textContent = `${recentTracksIds.length} треков`;
+    document.getElementById("favHomeCountLabel").textContent = `${favTracks.length} треков`;
+    document.getElementById("libFavCountText").textContent = `${favTracks.length} треков`;
+    document.getElementById("favDetailCountSub").textContent = `${favTracks.length} треков`;
+
+    bindCoverImage(document.getElementById("recentShortcutImg"), recTracks[0]?.cover || displayTracks[0]?.cover);
+    bindCoverImage(document.getElementById("favShortcutImg"), favTracks[0]?.cover || displayTracks[1]?.cover);
+
+    const forYouEl = document.getElementById("forYouRow");
+    const picks = displayTracks.slice(0, 6);
+    forYouEl.innerHTML = picks.map((t, i) => {
+      const prevCov = picks[(i + 1) % picks.length]?.cover || t.cover || DEFAULT_COVER_SVG;
+      const nextCov = picks[(i + 2) % picks.length]?.cover || t.cover || DEFAULT_COVER_SVG;
+      const mainCov = t.cover || DEFAULT_COVER_SVG;
+      return `
+        <div class="for-you-card" onclick="playSpecificTrack('${escapeHtml(t.id)}')">
+          <div class="for-you-art-stack">
+            <img class="stack-side-img left" src="${prevCov}" alt="" onerror="this.onerror=null;this.src=DEFAULT_COVER_SVG">
+            <img class="stack-side-img right" src="${nextCov}" alt="" onerror="this.onerror=null;this.src=DEFAULT_COVER_SVG">
+            <img class="stack-main-img" src="${mainCov}" alt="" onerror="this.onerror=null;this.src=DEFAULT_COVER_SVG">
+          </div>
+          <div class="for-you-title">${escapeHtml(t.title)}</div>
+          <div class="for-you-sub">${escapeHtml(t.artist)}</div>
+        </div>
+      `;
+    }).join("");
+
+    document.getElementById("homeTrackList").innerHTML = renderTrackRowsHtml(displayTracks);
+    document.getElementById("favDetailTrackList").innerHTML = renderTrackRowsHtml(favTracks);
+    document.getElementById("libraryContentBox").innerHTML = renderTrackRowsHtml(displayTracks.slice(0, 15));
+    renderSearchHistory();
+    renderStatsScreen();
+  }
+
+  function openFavoritesDetailScreen() {
+    document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
+    document.getElementById("tab-fav-detail").classList.add("active");
+  }
+
+  function openRecentTracksView() {
+    const recList = recentTracksIds.map((id) => knownTracksMap.get(id)).filter(Boolean);
+    if (recList.length) {
+      currentQueue = recList;
+      currentIndex = 0;
+      startPlaybackImmediate();
+    }
+  }
+
+  function playAllFavorites() {
+    const favTracks = [...knownTracksMap.values()].filter((t) => favoriteIds.has(t.id));
+    if (!favTracks.length) return;
+    currentQueue = favTracks;
+    currentIndex = 0;
+    startPlaybackImmediate();
+  }
+
+  function shuffleFavoritesAndPlay() {
+    const favTracks = [...knownTracksMap.values()].filter((t) => favoriteIds.has(t.id)).sort(() => Math.random() - 0.5);
+    if (!favTracks.length) return;
+    currentQueue = favTracks;
+    currentIndex = 0;
+    startPlaybackImmediate();
+  }
+
+  function filterLibraryView(mode, btnEl) {
+    document.querySelectorAll(".lib-pill-btn").forEach((b) => b.classList.remove("active"));
+    if (btnEl) btnEl.classList.add("active");
+    document.getElementById("libraryContentBox").innerHTML = renderTrackRowsHtml(displayTracks);
+  }
+
+  function refreshCatalogStreams() {
+    fetchTracksFromCatalog(lastSearchQuery || "Три дня дождя", false);
+  }
+
+  function extractColorFromCover(coverUrl) {
+    if (!dynamicColorBySong || !coverUrl || coverUrl.startsWith("data:")) return;
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.getElementById("colorCanvas");
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, 16, 16);
+        const data = ctx.getImageData(0, 0, 16, 16).data;
+        let r = 0, g = 0, b = 0, count = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          const br = (data[i] + data[i + 1] + data[i + 2]) / 3;
+          if (br > 25 && br < 230) { r += data[i]; g += data[i + 1]; b += data[i + 2]; count++; }
+        }
+        if (count > 0) {
+          const hsl = rgbToHsl(r / count, g / count, b / count);
+          document.documentElement.style.setProperty("--seed-h", Math.round(hsl.h));
+          document.documentElement.style.setProperty("--seed-s", `${Math.max(50, Math.min(85, Math.round(hsl.s)))}%`);
+        }
+      } catch (_) {}
+    };
+    img.src = coverUrl;
+  }
+
+  function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return { h: h * 360, s: s * 100, l: l * 100 };
+  }
+
+  function toggleDynamicSongColor() {
+    dynamicColorBySong = !dynamicColorBySong;
+    document.getElementById("dynColorSwitch").classList.toggle("on", dynamicColorBySong);
+    document.getElementById("potokModeText").textContent = dynamicColorBySong ? "Оттенок по песне" : "Обычная";
+    const cur = currentQueue[currentIndex];
+    if (dynamicColorBySong && cur) extractColorFromCover(cur.cover);
+    saveRealStats();
+  }
+
+  function toggleAmoledMode() {
+    const root = document.documentElement;
+    const isAmoled = root.getAttribute("data-amoled") === "true";
+    if (isAmoled) root.removeAttribute("data-amoled");
+    else root.setAttribute("data-amoled", "true");
+    document.getElementById("amoledSwitch").classList.toggle("on", !isAmoled);
+    saveRealStats();
+  }
+
+  function syncPlayerUI() {
+    const cur = currentQueue[currentIndex];
+    document.getElementById("potokHeroPlayIcon").textContent = isPlayingState ? "pause" : "play_arrow";
+    document.getElementById("miniPlayIcon").textContent = isPlayingState ? "pause" : "play_arrow";
+    document.getElementById("fpPlayIcon").textContent = isPlayingState ? "pause" : "play_arrow";
+
+    if (!cur) return;
+    bindCoverImage(document.getElementById("miniCover"), cur.cover);
+    bindCoverImage(document.getElementById("fpCover"), cur.cover);
+    document.getElementById("miniTitle").textContent = cur.title;
+    document.getElementById("miniArtist").textContent = cur.artist;
+    document.getElementById("fpTitle").textContent = cur.title;
+    document.getElementById("fpArtist").textContent = cur.artist;
+
+    const isFav = favoriteIds.has(cur.id);
+    const favIcon = document.getElementById("fpFavIcon");
+    favIcon.classList.toggle("filled", isFav);
+    favIcon.style.color = isFav ? "#ff6b6b" : "#ffffff";
+  }
+
+  function toggleFavCurrent() {
+    const cur = currentQueue[currentIndex];
+    if (!cur) return;
+    if (favoriteIds.has(cur.id)) favoriteIds.delete(cur.id);
+    else favoriteIds.add(cur.id);
+    saveRealStats();
+    syncPlayerUI();
+    renderAllViews();
+  }
+
+  function toggleShuffle() {
+    isShuffle = !isShuffle;
+    document.getElementById("shuffleBtn").style.color = isShuffle ? "var(--md-primary)" : "#ffffff";
+  }
+
+  function toggleRepeat() {
+    isRepeat = !isRepeat;
+    audio.loop = isRepeat;
+    document.getElementById("repeatBtn").style.color = isRepeat ? "var(--md-primary)" : "#ffffff";
+  }
+
+  function toggleFullPlayer(exp) {
+    document.getElementById("fullPlayer").classList.toggle("expanded", exp);
+  }
+
+  function switchTab(tabName) {
+    document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
+    const target = document.getElementById(`tab-${tabName}`);
+    if (target) target.classList.add("active");
+
+    document.querySelectorAll(".nav-btn").forEach((b) => {
+      b.classList.remove("active");
+      b.querySelector(".icon").classList.remove("filled");
+    });
+    const navBtn = document.getElementById(`nav-${tabName === "stats" ? "profile" : (tabName === "fav-detail" ? "library" : tabName)}`);
+    if (navBtn) {
+      navBtn.classList.add("active");
+      navBtn.querySelector(".icon").classList.add("filled");
+    }
+    if (tabName === "search") renderSearchResults(displayTracks);
+    if (tabName === "profile") loadSessionsAndHistory();
+  }
+
+  function shareProfileStats() {
+    const uid = currentUser ? (currentUser.publicId || currentUser.uid) : "Гость";
+    const uname = currentUser ? `@${currentUser.username}` : "";
+    const text = `Мой профиль в mmusic ${uname} (${uid}): ${realStats.totalPlays} прослушиваний, ${realStats.uniqueTrackIds.length} треков (${(realStats.totalSeconds / 3600).toFixed(1)} ч.)`;
+    if (navigator.share) navigator.share({ title: "mmusic", text }).catch(() => {});
+    else showNotice(text);
+  }
+
+  function fmtTime(sec) {
+    if (!sec || isNaN(sec)) return "0:00";
+    const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+    return `${m}:${s < 10 ? "0" : ""}${s}`;
+  }
+
+  function escapeHtml(str) {
+    return String(str || "").replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+  }
+
+  document.getElementById("fileInput").addEventListener("change", (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    files.forEach((file, i) => {
+      const url = URL.createObjectURL(file);
+      const t = {
+        id: "local_" + Date.now() + "_" + i,
+        title: file.name.replace(/\.[^/.]+$/, ""),
+        artist: "Локальный файл",
+        album: "На устройстве",
+        durationSec: 180,
+        cover: DEFAULT_COVER_SVG,
+        embeddable: true,
+        url,
+      };
+      registerTracks([t]);
+      displayTracks.unshift(t);
+    });
+    document.getElementById("libLocalCountText").textContent = `${files.length} треков`;
+    renderAllViews();
+    playSpecificTrack(displayTracks[0].id);
+  });
+
+  restoreSessionOnStartup();
+  fetchTracksFromCatalog("Три дня дождя", false);
+</script>
+</body>
+</html>
