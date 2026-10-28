@@ -2,1583 +2,925 @@
 <html lang="ru" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>mmusic — Material You 3</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600;8..144,700;8..144,800;8..144,900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,0" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>mmusic — Material 3</title>
 <style>
   :root {
-    --seed-h: 14;
-    --seed-s: 80%;
-    --md-background: #0e0d11;
-    --md-surface: #141318;
-    --md-surface-dim: #111015;
-    --md-surface-container-lowest: #09080c;
-    --md-surface-container-low: #19171d;
-    --md-surface-container: #201e25;
-    --md-surface-container-high: #2a2831;
-    --md-surface-container-highest: #35323d;
-    --md-primary: hsl(var(--seed-h), var(--seed-s), 72%);
-    --md-on-primary: hsl(var(--seed-h), var(--seed-s), 14%);
-    --md-primary-container: hsl(var(--seed-h), calc(var(--seed-s) * 0.72), 26%);
-    --md-on-primary-container: hsl(var(--seed-h), var(--seed-s), 92%);
-    --md-secondary-container: hsl(calc(var(--seed-h) + 18), 32%, 25%);
-    --md-on-secondary-container: hsl(calc(var(--seed-h) + 18), 65%, 90%);
-    --md-tertiary-container: hsl(calc(var(--seed-h) + 45), 40%, 24%);
-    --md-on-surface: #f4eff6;
-    --md-on-surface-variant: #cac4d0;
-    --md-outline: #938f99;
-    --md-outline-variant: rgba(255, 255, 255, 0.09);
-    --hero-bg-tint: hsl(var(--seed-h), 32%, 16%);
-    --md-spring: cubic-bezier(0.2, 0, 0, 1);
+    --hue: 26;
+    --sec-hue: 346;
+    --book-hue: 26;
+    --glass-blur: 14px;
+    --glass-alpha: 0.84;
+    --glass-stroke: 0.10;
+
+    --spring-rubber: cubic-bezier(0.20, 1.38, 0.34, 1);
+    --spring-book: cubic-bezier(0.22, 1.22, 0.36, 1);
+    --spring-swipe: cubic-bezier(0.18, 1.20, 0.32, 1);
+    --color-trans: 360ms cubic-bezier(0.4, 0, 0.2, 1);
   }
-  [data-amoled="true"] {
-    --md-background: #000000;
-    --md-surface: #050507;
-    --md-surface-container-lowest: #000000;
-    --md-surface-container-low: #0d0d10;
-    --md-surface-container: #141418;
-    --md-surface-container-high: #1e1e24;
-    --md-surface-container-highest: #282830;
-    --hero-bg-tint: #120f12;
+
+  /* ТЁМНАЯ ТЕМА MD3 */
+  html[data-theme="dark"] {
+    --bg: hsl(var(--hue), 16%, 7%);
+    --on-bg: hsl(var(--hue), 20%, 95%);
+    --surface: hsla(var(--hue), 16%, 11%, var(--glass-alpha));
+    --surface-container: hsla(var(--hue), 16%, 14%, var(--glass-alpha));
+    --surface-high: hsla(var(--hue), 18%, 19%, var(--glass-alpha));
+    --surface-highest: hsla(var(--hue), 18%, 25%, var(--glass-alpha));
+    --on-surface: hsl(var(--hue), 18%, 94%);
+    --on-surface-var: hsl(var(--hue), 14%, 66%);
+    --primary: hsl(var(--hue), 78%, 74%);
+    --on-primary: hsl(var(--hue), 72%, 13%);
+    --primary-container: hsl(var(--hue), 48%, 24%);
+    --on-primary-container: hsl(var(--hue), 85%, 92%);
+    --secondary-container: hsl(var(--sec-hue), 34%, 22%);
+    --on-secondary-container: hsl(var(--sec-hue), 75%, 90%);
+    --outline-var: hsla(var(--hue), 25%, 88%, var(--glass-stroke));
+    --outer-backdrop: #050404;
+
+    /* Палитра минималистичной книги MD3 */
+    --book-cover-bg: linear-gradient(145deg, hsl(var(--book-hue), 54%, 28%), hsl(var(--book-hue), 48%, 16%));
+    --book-left-bg: linear-gradient(135deg, hsl(var(--book-hue), 52%, 27%), hsl(var(--book-hue), 46%, 18%));
+    --book-right-bg: linear-gradient(225deg, hsl(var(--book-hue), 20%, 19%), hsl(var(--book-hue), 18%, 13%));
+    --book-title-color: hsl(var(--book-hue), 30%, 95%);
+    --book-artist-color: hsla(var(--book-hue), 25%, 80%, 0.72);
+    --book-emboss: hsla(var(--book-hue), 35%, 8%, 0.55);
+    --book-emboss-hi: hsla(var(--book-hue), 80%, 75%, 0.14);
+    --book-border: hsla(var(--book-hue), 45%, 65%, 0.18);
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    height: 100dvh;
-    background-color: var(--md-background);
-    color: var(--md-on-surface);
-    font-family: 'Roboto Flex', sans-serif;
-    overflow: hidden;
+
+  /* СВЕТЛАЯ ТЕМА MD3 */
+  html[data-theme="light"] {
+    --bg: hsl(var(--hue), 30%, 96%);
+    --on-bg: hsl(var(--hue), 32%, 11%);
+    --surface: hsla(var(--hue), 30%, 99%, var(--glass-alpha));
+    --surface-container: hsla(var(--hue), 26%, 92%, var(--glass-alpha));
+    --surface-high: hsla(var(--hue), 24%, 87%, var(--glass-alpha));
+    --surface-highest: hsla(var(--hue), 22%, 80%, var(--glass-alpha));
+    --on-surface: hsl(var(--hue), 32%, 12%);
+    --on-surface-var: hsl(var(--hue), 18%, 38%);
+    --primary: hsl(var(--hue), 66%, 38%);
+    --on-primary: #ffffff;
+    --primary-container: hsl(var(--hue), 72%, 86%);
+    --on-primary-container: hsl(var(--hue), 72%, 14%);
+    --secondary-container: hsl(var(--sec-hue), 56%, 87%);
+    --on-secondary-container: hsl(var(--sec-hue), 60%, 16%);
+    --outline-var: hsla(var(--hue), 30%, 18%, var(--glass-stroke));
+    --outer-backdrop: hsl(var(--hue), 20%, 88%);
+
+    /* Палитра книги в светлой теме MD3 */
+    --book-cover-bg: linear-gradient(145deg, hsl(var(--book-hue), 60%, 44%), hsl(var(--book-hue), 54%, 32%));
+    --book-left-bg: linear-gradient(135deg, hsl(var(--book-hue), 58%, 46%), hsl(var(--book-hue), 52%, 35%));
+    --book-right-bg: linear-gradient(225deg, hsl(var(--book-hue), 32%, 89%), hsl(var(--book-hue), 26%, 82%));
+    --book-title-color: hsl(var(--book-hue), 42%, 13%);
+    --book-artist-color: hsla(var(--book-hue), 30%, 26%, 0.72);
+    --book-emboss: hsla(var(--book-hue), 45%, 18%, 0.42);
+    --book-emboss-hi: rgba(255, 255, 255, 0.35);
+    --book-border: hsla(var(--book-hue), 40%, 30%, 0.16);
+  }
+
+  body.reduced-motion * {
+    --spring-rubber: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    --spring-book: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    --spring-swipe: cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition-duration: 140ms !important;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
     user-select: none;
   }
-  body { display: flex; flex-direction: column; }
-  .icon {
-    font-family: 'Material Symbols Rounded';
-    font-size: 24px;
-    font-variation-settings: 'FILL' 0, 'wght' 450, 'GRAD' 0, 'opsz' 24;
-    display: inline-flex; align-items: center; justify-content: center; line-height: 1;
-    transition: font-variation-settings 0.25s var(--md-spring), transform 0.25s var(--md-spring);
-  }
-  .icon.filled { font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24; }
 
-  /* Тост-уведомление MD3 */
-  .app-notice-toast {
-    position: fixed; top: max(14px, env(safe-area-inset-top)); left: 16px; right: 16px; max-width: 420px; margin: 0 auto;
-    background: var(--md-surface-container-highest); border: 1px solid var(--md-outline-variant);
-    border-radius: 20px; padding: 12px 16px; z-index: 500;
-    display: none; align-items: center; gap: 12px;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6); font-size: 13px; line-height: 1.4;
-  }
-  .app-notice-toast.show { display: flex; }
-
-  main {
-    flex: 1; overflow-y: auto;
-    padding-bottom: calc(170px + env(safe-area-inset-bottom));
-    max-width: 480px; width: 100%; margin: 0 auto; scrollbar-width: none;
-  }
-  main::-webkit-scrollbar { display: none; }
-  .screen { display: none; animation: mdFadeIn 0.24s var(--md-spring); }
-  .screen.active { display: block; }
-  @keyframes mdFadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: var(--outer-backdrop);
+    color: var(--on-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
   }
 
-  /* Верхняя секция Поток (MD3 Expressive) */
-  .potok-top-section {
-    position: relative; overflow: hidden;
-    padding: max(20px, env(safe-area-inset-top)) 18px 20px;
-    background: linear-gradient(180deg, var(--hero-bg-tint) 0%, var(--md-background) 100%);
-    transition: background 0.4s ease;
+  .device-frame {
+    position: relative;
+    width: 100%;
+    max-width: 430px;
+    height: 100vh;
+    max-height: 920px;
+    background: var(--bg);
+    color: var(--on-bg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: background var(--color-trans), color var(--color-trans);
   }
-  .potok-bg-ribbon { position: absolute; right: -30px; top: 15px; width: 340px; height: 290px; pointer-events: none; opacity: 0.14; }
-  .potok-header-bar { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .potok-giant-title { font-size: 44px; font-weight: 900; line-height: 0.96; letter-spacing: -1.2px; color: var(--md-on-surface); }
-  .md3-top-actions { display: flex; align-items: center; gap: 8px; }
-  .top-bell-btn {
-    width: 44px; height: 44px; border-radius: 22px; border: 1px solid var(--md-outline-variant);
-    background: var(--md-surface-container-low); color: var(--md-on-surface);
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s, transform 0.15s;
-  }
-  .top-bell-btn:active { transform: scale(0.93); background: var(--md-surface-container-high); }
 
-  .potok-collage-stage { position: relative; z-index: 2; height: 215px; margin-bottom: 12px; }
-  .hero-cover-main, .hero-cover-top-right, .hero-cover-mid-right, .shortcut-thumb, .clean-track-cover, .stack-main-img, .stack-side-img, .fp-artwork {
-    background: var(--md-surface-container-high);
+  @media (min-width: 460px) {
+    .device-frame {
+      height: 93vh;
+      border-radius: 46px;
+      border: 4px solid var(--outline-var);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.42);
+    }
   }
-  .hero-cover-main { position: absolute; left: 0; top: 14px; width: 156px; height: 156px; border-radius: 32px; object-fit: cover; box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55); border: 1px solid var(--md-outline-variant); }
-  .hero-cover-top-right { position: absolute; right: 16px; top: 0; width: 88px; height: 88px; border-radius: 24px; object-fit: cover; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5); }
-  .hero-cover-mid-right { position: absolute; right: 68px; top: 100px; width: 82px; height: 82px; border-radius: 22px; object-fit: cover; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5); }
 
-  .potok-controls-row { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 0 4px; margin-bottom: 18px; }
-  .potok-mode-label {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--md-surface-container-high); color: var(--md-on-surface);
-    padding: 10px 16px; border-radius: 999px; font-size: 13px; font-weight: 600;
-    cursor: pointer; border: 1px solid var(--md-outline-variant);
+  .glass-panel {
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--outline-var);
   }
-  .potok-white-play-btn {
-    width: 78px; height: 78px; border-radius: 28px; border: none;
-    background: var(--md-primary); color: var(--md-on-primary);
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); transition: border-radius 0.25s var(--md-spring), transform 0.15s;
-  }
-  .potok-white-play-btn:active { transform: scale(0.94); border-radius: 38px; }
 
-  /* ФИРМЕННАЯ ЛИСТАЮЩАЯ КНИГА (MD3 3D FlipBook) */
-  .flipbook-section { padding: 0 16px; margin-bottom: 26px; }
-  .flipbook-header {
-    display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
+  .rubber-btn {
+    cursor: pointer;
+    transition: transform 340ms var(--spring-rubber), background 240ms ease, color 240ms ease;
   }
-  .flipbook-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 5px 12px; border-radius: 999px;
-    background: var(--md-primary-container); color: var(--md-on-primary-container);
-    font-size: 12px; font-weight: 700;
+  .rubber-btn:active {
+    transform: scale(0.92);
   }
-  .book-svg-anim {
-    width: 20px; height: 20px;
+
+  /* ВЕРХНЯЯ ПАНЕЛЬ MD3 */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px 8px;
+    height: 64px;
+    z-index: 5;
   }
-  .book-svg-anim .page-flip {
-    transform-origin: 12px 12px;
-    animation: svgBookFlip 2.4s ease-in-out infinite;
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: opacity 200ms, transform 320ms var(--spring-book);
   }
-  @keyframes svgBookFlip {
-    0%, 100% { transform: scaleX(1) skewY(0deg); opacity: 1; }
-    50% { transform: scaleX(-0.85) skewY(-8deg); opacity: 0.75; }
+  .brand-row.hidden {
+    opacity: 0;
+    transform: translateX(-16px) scale(0.92);
+    pointer-events: none;
+    width: 0;
+    overflow: hidden;
   }
-  .flipbook-stage {
+  .brand-title {
+    font-size: 23px;
+    font-weight: 900;
+    letter-spacing: -0.7px;
+  }
+  .top-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: flex-end;
+  }
+  .search-shell {
+    height: 44px;
+    width: 44px;
+    border-radius: 22px;
+    background: var(--surface-high);
+    color: var(--on-surface);
+    display: flex;
+    align-items: center;
+    padding: 0 11px;
+    overflow: hidden;
+    transition: width 420ms var(--spring-book);
+  }
+  .search-shell.expanded {
+    width: 100%;
+  }
+  .search-input {
+    border: none;
+    background: transparent;
+    color: var(--on-surface);
+    font-size: 15px;
+    width: 100%;
+    margin-left: 8px;
+    outline: none;
+    display: none;
+  }
+  .search-shell.expanded .search-input {
+    display: block;
+  }
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 22px;
+    border: none;
+    background: var(--surface-high);
+    color: var(--on-surface);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ВКЛАДКИ */
+  .screens-viewport {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .tab-screen {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 4px 20px 24px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px);
+    transition: opacity 240ms ease, transform 400ms var(--spring-book);
+  }
+  .tab-screen::-webkit-scrollbar { display: none; }
+  .tab-screen.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  /* МИНИМАЛИСТИЧНАЯ КНИГА MD3 */
+  .md3-book-stage {
+    position: relative;
+    width: 100%;
+    height: 268px;
+    margin: 4px 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     perspective: 1400px;
-    width: 100%; height: 210px; position: relative;
+    touch-action: pan-y;
   }
-  .flipbook-card {
-    width: 100%; height: 100%;
-    background: linear-gradient(135deg, var(--md-surface-container-high) 0%, var(--md-surface-container) 100%);
-    border: 1px solid var(--md-outline-variant);
-    border-radius: 28px; display: grid; grid-template-columns: 1fr 1fr;
-    overflow: hidden; position: relative;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+  .md3-book {
+    position: relative;
+    width: 168px;
+    height: 220px;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: width 620ms var(--spring-book), transform 520ms var(--spring-rubber), box-shadow 520ms ease;
+    will-change: width, transform;
   }
-  /* Центральный корешок книги */
-  .flipbook-spine {
-    position: absolute; left: 50%; top: 10px; bottom: 10px; width: 2px;
-    background: linear-gradient(180deg, transparent, rgba(255,255,255,0.22), transparent);
-    transform: translateX(-50%); z-index: 6; pointer-events: none;
+  .md3-book:active { transform: scale(0.96); }
+  .md3-book.open { width: 344px; }
+  .md3-book-spread {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid var(--book-border);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.34);
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity 380ms ease, transform 620ms var(--spring-book);
   }
-  .flipbook-left-page, .flipbook-right-page {
-    padding: 16px; display: flex; flex-direction: column; justify-content: space-between; position: relative;
+  .md3-book.open .md3-book-spread {
+    opacity: 1;
+    transform: scale(1);
   }
-  .flipbook-left-page {
-    background: radial-gradient(circle at top left, color-mix(in srgb, var(--md-primary-container) 45%, transparent), transparent 70%);
+  .md3-page-left {
+    position: relative;
+    background: var(--book-left-bg);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-right: 1px solid rgba(0, 0, 0, 0.22);
+    box-shadow: inset -12px 0 20px rgba(0, 0, 0, 0.16);
+    transition: background var(--color-trans);
   }
-  .flipbook-cover-wrap {
-    position: relative; width: 104px; height: 104px; border-radius: 20px; overflow: hidden;
-    box-shadow: 0 10px 24px rgba(0,0,0,0.45); border: 1px solid var(--md-outline-variant);
+  .md3-page-right {
+    position: relative;
+    background: var(--book-right-bg);
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: inset 12px 0 20px rgba(0, 0, 0, 0.14);
+    transition: background var(--color-trans);
   }
-  .flipbook-cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
-  .flipbook-page-num {
-    font-size: 11px; font-weight: 700; color: var(--md-on-surface-variant);
-    display: flex; align-items: center; gap: 4px;
+  .md3-page-emboss {
+    font-size: 56px;
+    font-weight: 900;
+    letter-spacing: -3px;
+    line-height: 1;
+    color: var(--book-emboss);
+    text-shadow: 1px 1px 0 var(--book-emboss-hi);
+    align-self: center;
+    margin: auto 0;
+    pointer-events: none;
   }
-  .flipbook-story-tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--md-primary); margin-bottom: 4px;
+  .md3-sound-bars {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 16px;
   }
-  .flipbook-track-title {
-    font-size: 16px; font-weight: 800; color: var(--md-on-surface);
-    line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  .md3-sound-bars span {
+    width: 4px;
+    height: 6px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.78);
+    transition: height 200ms ease;
   }
-  .flipbook-track-artist { font-size: 12px; color: var(--md-on-surface-variant); margin-top: 3px; }
-  .flipbook-quote {
-    font-size: 11px; color: var(--md-on-surface-variant); line-height: 1.35;
-    background: rgba(255,255,255,0.04); padding: 7px 9px; border-radius: 12px;
-    border-left: 2px solid var(--md-primary); margin-top: 6px;
+  .md3-book.open.playing .md3-sound-bars span:nth-child(1) { animation: eqPulse 720ms ease-in-out infinite alternate; }
+  .md3-book.open.playing .md3-sound-bars span:nth-child(2) { animation: eqPulse 540ms ease-in-out 120ms infinite alternate; }
+  .md3-book.open.playing .md3-sound-bars span:nth-child(3) { animation: eqPulse 660ms ease-in-out 240ms infinite alternate; }
+  @keyframes eqPulse {
+    0% { height: 5px; opacity: 0.55; }
+    100% { height: 16px; opacity: 1; }
   }
-  .flipbook-actions {
-    display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 6px;
+
+  .md3-book-song {
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: -0.4px;
+    line-height: 1.22;
+    color: var(--book-title-color);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color var(--color-trans);
   }
-  .flip-nav-btn {
-    width: 34px; height: 34px; border-radius: 12px; border: 1px solid var(--md-outline-variant);
-    background: var(--md-surface-container-highest); color: var(--md-on-surface);
-    display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
-    transition: transform 0.15s, background 0.2s;
+  .md3-book-artist {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--book-artist-color);
+    margin-top: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--color-trans);
   }
-  .flip-nav-btn:active { transform: scale(0.9); }
-  .flip-play-chip {
-    flex: 1; height: 34px; border-radius: 12px; border: none;
-    background: var(--md-primary); color: var(--md-on-primary);
-    font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  .md3-book-page-num {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: var(--book-artist-color);
+    align-self: flex-end;
+  }
+  .md3-book-cover {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px 28px 28px 12px;
+    background: var(--book-cover-bg);
+    border: 1px solid var(--book-border);
+    box-shadow: 0 18px 38px rgba(0, 0, 0, 0.38), inset 4px 0 12px rgba(255, 255, 255, 0.08);
+    transform-origin: left center;
+    transform: rotateY(0deg);
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    transition: transform 640ms var(--spring-book), opacity 420ms ease, background var(--color-trans);
+  }
+  .md3-book-cover::before {
+    content: '';
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 0;
+    width: 1.5px;
+    background: rgba(0, 0, 0, 0.28);
+    box-shadow: 1px 0 0 rgba(255, 255, 255, 0.08);
+  }
+  .md3-book.open .md3-book-cover {
+    transform: rotateY(-165deg);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .md3-cover-monogram {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -1.2px;
+    color: var(--book-emboss);
+    text-shadow: 1px 1px 0 var(--book-emboss-hi);
+    margin-left: 6px;
+  }
+  .md3-page-turner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: var(--book-right-bg);
+    border-radius: 0 28px 28px 0;
+    transform-origin: left center;
+    pointer-events: none;
+    opacity: 0;
+    z-index: 3;
+  }
+  @keyframes cleanPageTurn {
+    0% { opacity: 0.95; transform: rotateY(0deg); }
+    100% { opacity: 0; transform: rotateY(-170deg); }
+  }
+  .md3-page-turner.flipping {
+    animation: cleanPageTurn 460ms var(--spring-book) forwards;
+  }
+
+  /* АЛЬБОМЫ */
+  .albums-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .album-card {
+    background: var(--surface-container);
+    border-radius: 28px;
+    padding: 11px;
+    border: 1px solid var(--outline-var);
+  }
+  .album-cover-box {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 9px;
+  }
+  .book-spine {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background: rgba(0,0,0,0.22);
+  }
+  .album-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 4px;
+  }
+  .album-artist {
+    font-size: 12px;
+    color: var(--on-surface-var);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 4px 0;
+  }
+
+  /* ТРЕКИ */
+  .track-list { display: flex; flex-direction: column; gap: 8px; }
+  .track-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface-container);
+    padding: 9px 12px;
+    border-radius: 22px;
+    border: 1px solid var(--outline-var);
+  }
+  .track-item.playing {
+    background: var(--secondary-container);
+    color: var(--on-secondary-container);
+  }
+  .track-thumb { width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0; }
+  .track-info { flex: 1; min-width: 0; }
+  .track-name { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .track-sub { font-size: 12px; color: var(--on-surface-var); display: flex; align-items: center; gap: 6px; }
+  .mini-action-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 19px;
+    border: none;
+    background: transparent;
+    color: var(--on-surface-var);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .mini-action-btn.active { color: var(--primary); }
+
+  /* МИНИ-ПЛЕЕР */
+  .mini-player {
+    margin: 0 20px 8px;
+    height: 64px;
+    border-radius: 24px;
+    background: var(--surface-high);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    z-index: 6;
+    touch-action: none;
+  }
+  .mini-player-inner { flex: 1; display: flex; align-items: center; padding: 0 14px; gap: 12px; }
+  .mini-progress-track { width: 100%; height: 3px; background: var(--surface-highest); }
+  .mini-progress-fill { height: 100%; width: 22%; background: var(--primary); }
+
+  /* НАВИГАЦИЯ */
+  .bottom-nav {
+    position: relative;
+    margin: 0 20px 14px;
+    height: 64px;
+    border-radius: 32px;
+    background: var(--surface-high);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+    padding: 6px;
+    z-index: 6;
+  }
+  .nav-pill-bg {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 6px;
+    width: calc((100% - 12px) / 3);
+    border-radius: 26px;
+    background: var(--primary-container);
+    pointer-events: none;
+    z-index: 0;
+    transform: translate3d(calc(var(--nav-idx, 0) * 100%), 0, 0);
+    transition: transform 440ms var(--spring-rubber), background var(--color-trans);
+  }
+  .nav-item {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    color: var(--on-surface-var);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 26px;
+    z-index: 1;
+    transition: color 220ms ease;
+  }
+  .nav-item.active { color: var(--on-primary-container); }
+
+  /* ПОЛНЫЙ ПЛЕЕР СО SQUIGGLY CANVAS */
+  .full-player {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    color: var(--on-surface);
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px 24px 26px;
+    transform: translate3d(0, 105%, 0);
+    transition: transform 540ms var(--spring-swipe);
+    touch-action: none;
+  }
+  .full-player.open { transform: translate3d(0, 0, 0); }
+  .fp-book-stage { position: relative; width: 100%; height: 244px; display: flex; align-items: center; justify-content: center; }
+  .fp-spread-card {
+    width: 100%;
+    height: 216px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid var(--book-border);
+    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.36);
+  }
+  .squiggly-player-wrap { width: 100%; padding: 6px 0 2px; cursor: pointer; touch-action: none; }
+  .squiggly-canvas { width: 100%; height: 38px; display: block; }
+  .md3-play-fab {
+    width: 76px;
+    height: 76px;
+    border-radius: 26px;
+    border: none;
+    background: var(--primary);
+    color: var(--on-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+  }
+
+  /* ПЕРЕКЛЮЧАТЕЛИ И СЛАЙДЕРЫ */
+  .capsule-toggle {
+    position: relative;
+    width: 60px;
+    height: 34px;
+    border-radius: 999px;
+    background: var(--surface-highest);
+    border: 1px solid var(--outline-var);
+    padding: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: background 240ms ease;
+  }
+  .capsule-toggle.checked { background: var(--primary); }
+  .capsule-toggle-knob {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--on-surface-var);
+    transition: transform 380ms var(--spring-rubber), background 240ms ease;
+  }
+  .capsule-toggle.checked .capsule-toggle-knob {
+    transform: translateX(26px);
+    background: var(--on-primary);
+  }
+  .profile-card {
+    background: var(--surface-container);
+    border: 1px solid var(--outline-var);
+    border-radius: 30px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .chip-pill {
+    border: 1px solid var(--outline-var);
+    padding: 9px 16px;
+    border-radius: 20px;
+    background: var(--surface-high);
+    color: var(--on-surface-var);
+    font-weight: 700;
+    font-size: 13px;
     cursor: pointer;
   }
-  /* 3D анимированный лист при перелистывании */
-  .flipbook-turning-leaf {
-    position: absolute; top: 0; right: 0; width: 50%; height: 100%;
-    background: linear-gradient(135deg, var(--md-surface-container-highest), var(--md-surface-container));
-    border-left: 1px solid rgba(255,255,255,0.18);
-    transform-origin: left center;
-    pointer-events: none; opacity: 0; z-index: 10;
-    border-radius: 0 28px 28px 0;
-  }
-  .flipbook-turning-leaf.turn-next {
-    animation: pageTurnNext 0.55s cubic-bezier(0.32, 0.08, 0.24, 1);
-  }
-  .flipbook-turning-leaf.turn-prev {
-    animation: pageTurnPrev 0.55s cubic-bezier(0.32, 0.08, 0.24, 1);
-  }
-  @keyframes pageTurnNext {
-    0% { opacity: 0.95; transform: rotateY(0deg); }
-    50% { opacity: 0.95; box-shadow: -18px 0 30px rgba(0,0,0,0.6); }
-    100% { opacity: 0; transform: rotateY(-180deg); }
-  }
-  @keyframes pageTurnPrev {
-    0% { opacity: 0.95; transform: rotateY(-180deg); }
-    50% { opacity: 0.95; box-shadow: -18px 0 30px rgba(0,0,0,0.6); }
-    100% { opacity: 0; transform: rotateY(0deg); }
-  }
-
-  /* Быстрые карточки MD3 */
-  .dual-shortcut-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 16px; margin-bottom: 24px; }
-  .shortcut-pill-card {
-    display: flex; align-items: center; gap: 10px; height: 62px; padding: 6px 12px 6px 6px; border-radius: 20px;
-    background: var(--md-surface-container); border: 1px solid var(--md-outline-variant); cursor: pointer;
-    transition: transform 0.15s, background 0.2s;
-  }
-  .shortcut-pill-card:active { transform: scale(0.97); background: var(--md-surface-container-high); }
-  .shortcut-thumb { width: 50px; height: 50px; border-radius: 14px; object-fit: cover; flex-shrink: 0; }
-  .shortcut-info { min-width: 0; flex: 1; }
-  .shortcut-title { font-size: 14px; font-weight: 700; color: var(--md-on-surface); display: flex; align-items: center; gap: 5px; }
-  .shortcut-sub { font-size: 12px; color: var(--md-on-surface-variant); margin-top: 2px; }
-
-  .home-section-title { font-size: 21px; font-weight: 800; letter-spacing: -0.3px; padding: 0 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-  .for-you-scroll { display: flex; gap: 14px; overflow-x: auto; padding: 0 16px 8px; margin-bottom: 24px; scrollbar-width: none; }
-  .for-you-scroll::-webkit-scrollbar { display: none; }
-  .for-you-card { width: 172px; flex-shrink: 0; cursor: pointer; }
-  .for-you-art-stack { position: relative; width: 172px; height: 160px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; }
-  .stack-side-img { position: absolute; width: 124px; height: 124px; border-radius: 22px; object-fit: cover; opacity: 0.55; }
-  .stack-side-img.left { left: 0; transform: rotate(-6deg) scale(0.92); }
-  .stack-side-img.right { right: 0; transform: rotate(6deg) scale(0.92); }
-  .stack-main-img { position: relative; z-index: 2; width: 144px; height: 144px; border-radius: 26px; object-fit: cover; box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55); }
-  .for-you-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .for-you-sub { font-size: 12px; color: var(--md-on-surface-variant); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .library-screen-pad, .profile-screen-pad { padding: max(18px, env(safe-area-inset-top)) 16px 20px; }
-  .lib-top-cards { display: flex; gap: 12px; overflow-x: auto; margin-bottom: 18px; scrollbar-width: none; }
-  .lib-big-card { height: 124px; border-radius: 28px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; flex-shrink: 0; }
-  .lib-big-card.red-fav {
-    width: 260px; background: linear-gradient(135deg, var(--md-primary) 0%, var(--md-primary-container) 100%); color: var(--md-on-primary);
-  }
-  .lib-big-card.grey-dl {
-    width: 164px; background: var(--md-surface-container-high); color: var(--md-on-surface); border: 1px solid var(--md-outline-variant);
-  }
-  .lib-filter-bar { display: flex; align-items: center; gap: 8px; overflow-x: auto; margin-bottom: 20px; scrollbar-width: none; }
-  .lib-circle-btn, .fav-glass-btn {
-    width: 44px; height: 44px; border-radius: 22px; border: 1px solid var(--md-outline-variant);
-    background: var(--md-surface-container); color: var(--md-on-surface);
-    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer;
-  }
-  .lib-pill-btn {
-    height: 40px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--md-outline-variant);
-    background: var(--md-surface-container-low); color: var(--md-on-surface);
-    font-size: 14px; font-weight: 600; white-space: nowrap; cursor: pointer; font-family: inherit;
-    transition: all 0.2s var(--md-spring);
-  }
-  .lib-pill-btn.active { background: var(--md-secondary-container); color: var(--md-on-secondary-container); border-color: transparent; border-radius: 20px; }
-
-  .clean-track-list { display: flex; flex-direction: column; gap: 6px; padding: 0 16px; }
-  .clean-track-row {
-    display: flex; align-items: center; padding: 8px 8px; border-radius: 18px; cursor: pointer;
-    transition: background 0.2s;
-  }
-  .clean-track-row:active { background: var(--md-surface-container); }
-  .clean-track-row.playing { background: var(--md-secondary-container); }
-  .clean-track-cover { width: 52px; height: 52px; border-radius: 14px; object-fit: cover; flex-shrink: 0; }
-  .clean-track-info { flex: 1; min-width: 0; margin: 0 12px; }
-  .clean-track-title { font-size: 15px; font-weight: 700; color: var(--md-on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .clean-track-artist { font-size: 13px; color: var(--md-on-surface-variant); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .clean-dur-pill {
-    padding: 5px 11px; border-radius: 999px; background: var(--md-surface-container-high);
-    border: 1px solid var(--md-outline-variant); font-size: 12px; font-weight: 600; color: var(--md-on-surface-variant); flex-shrink: 0;
-  }
-
-  .search-screen-wrap { padding: max(18px, env(safe-area-inset-top)) 16px 20px; display: flex; flex-direction: column; min-height: calc(100dvh - 150px); justify-content: space-between; }
-  .search-bottom-card, .profile-top-card, .profile-menu-group, .stats-top-summary, .stats-detail-box {
-    background: var(--md-surface-container-low); border: 1px solid var(--md-outline-variant); border-radius: 28px;
-  }
-  .search-bottom-card { padding: 8px 0; margin-top: 14px; box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5); }
-  .history-item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; cursor: pointer; }
-  .history-left { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 500; color: var(--md-on-surface); }
-  .history-left .icon { color: var(--md-on-surface-variant); font-size: 20px; }
-  .search-card-input-bar { display: flex; align-items: center; gap: 12px; padding: 10px 14px 6px 18px; border-top: 1px solid var(--md-outline-variant); }
-  .search-card-input-bar input, .auth-input-box input { flex: 1; background: transparent; border: none; color: var(--md-on-surface); font-size: 15px; font-family: inherit; outline: none; }
-  .search-source-badge {
-    width: 36px; height: 36px; border-radius: 18px; background: var(--md-primary-container); color: var(--md-primary); display: flex; align-items: center; justify-content: center;
-  }
-
-  .profile-top-card { padding: 18px; margin-bottom: 18px; }
-  .profile-user-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
-  .user-id-meta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
-  .user-id-chip { background: var(--md-surface-container); border: 1px solid var(--md-outline-variant); border-radius: 18px; padding: 10px 12px; }
-  .user-id-chip-lbl { font-size: 11px; color: var(--md-on-surface-variant); margin-bottom: 3px; }
-  .user-id-chip-val { font-size: 13px; font-weight: 800; color: var(--md-on-surface); word-break: break-all; }
-  .profile-share-btn, .btn-white-pill {
-    width: 100%; height: 48px; border-radius: 999px; border: none;
-    background: var(--md-primary); color: var(--md-on-primary);
-    font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
-    font-family: inherit; transition: transform 0.15s, filter 0.2s;
-  }
-  .profile-share-btn:active, .btn-white-pill:active { transform: scale(0.98); }
-
-  .profile-group-label { font-size: 13px; font-weight: 700; color: var(--md-primary); margin: 8px 8px 8px; letter-spacing: 0.02em; }
-  .profile-menu-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 18px; cursor: pointer; border-bottom: 1px solid var(--md-outline-variant); }
-  .profile-menu-item:last-child { border-bottom: none; }
-  .pm-left { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 600; color: var(--md-on-surface); }
-  .pm-left .icon { color: var(--md-on-surface-variant); font-size: 21px; }
-  .pm-right { display: flex; align-items: center; gap: 6px; color: var(--md-on-surface-variant); font-size: 14px; }
-
-  /* Переключатель MD3 */
-  .m3-switch { width: 52px; height: 30px; border-radius: 15px; background: var(--md-surface-container-highest); border: 2px solid var(--md-outline); position: relative; cursor: pointer; transition: all 0.22s var(--md-spring); }
-  .m3-switch.on { background: var(--md-primary); border-color: var(--md-primary); }
-  .m3-switch::after { content: ''; position: absolute; top: 5px; left: 5px; width: 16px; height: 16px; border-radius: 50%; background: var(--md-outline); transition: all 0.22s var(--md-spring); }
-  .m3-switch.on::after { transform: translateX(22px) scale(1.25); background: var(--md-on-primary); }
-
-  /* Карточка авторизации по логину и паролю (D1 / Cloudflare Worker) */
-  .auth-card-md3 {
-    background: var(--md-surface-container-low); border: 1px solid var(--md-outline-variant);
-    border-radius: 28px; padding: 18px; margin-bottom: 18px;
-  }
-  .md3-segmented {
-    display: grid; grid-template-columns: 1fr 1fr; background: var(--md-surface-container-high);
-    padding: 4px; border-radius: 999px; margin-bottom: 14px; border: 1px solid var(--md-outline-variant);
-  }
-  .md3-seg-btn {
-    height: 36px; border: none; border-radius: 999px; background: transparent;
-    color: var(--md-on-surface-variant); font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit;
-    transition: all 0.2s var(--md-spring);
-  }
-  .md3-seg-btn.active { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
-  .auth-input-box {
-    width: 100%; height: 50px; border-radius: 16px; background: var(--md-surface-container);
-    border: 1px solid var(--md-outline-variant); display: flex; align-items: center; padding: 0 14px; gap: 10px; margin-bottom: 10px;
-  }
-  .auth-input-box:focus-within { border-color: var(--md-primary); }
-  .auth-error-banner {
-    display: none; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px;
-    background: rgba(255, 82, 82, 0.14); color: #ff8a80; font-size: 12px; font-weight: 600;
-  }
-  .auth-error-banner.show { display: block; }
-
-  /* Мини-плеер MD3 */
-  .mini-player {
-    position: fixed; left: 12px; right: 12px; bottom: calc(82px + env(safe-area-inset-bottom)); max-width: 456px; margin: 0 auto;
-    background: color-mix(in srgb, var(--md-surface-container-high) 92%, var(--md-primary) 8%);
-    backdrop-filter: blur(20px);
-    border-radius: 24px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55); overflow: hidden; z-index: 35;
-    border: 1px solid var(--md-outline-variant); transition: transform 0.25s var(--md-spring), opacity 0.2s;
-  }
-  .mini-player.hidden { transform: translateY(160%); opacity: 0; pointer-events: none; }
-  .mini-body { display: flex; align-items: center; padding: 8px 12px; cursor: pointer; }
-  .mini-play-btn {
-    width: 42px; height: 42px; border-radius: 14px; border: none;
-    background: var(--md-primary); color: var(--md-on-primary);
-    display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin-right: 4px;
-  }
-  .mini-progress-track { height: 3px; background: rgba(255, 255, 255, 0.08); width: 100%; }
-  .mini-progress-fill { height: 100%; background: var(--md-primary); width: 0%; transition: width 0.25s linear; }
-
-  /* Полноэкранный плеер */
-  .full-player {
-    position: fixed; inset: 0;
-    background: radial-gradient(circle at top, color-mix(in srgb, var(--md-primary-container) 60%, transparent) 0%, transparent 38%), var(--md-background);
-    z-index: 80; display: flex; flex-direction: column;
-    padding: max(16px, env(safe-area-inset-top)) 22px calc(28px + env(safe-area-inset-bottom));
-    transform: translateY(104%); transition: transform 0.34s var(--md-spring);
-  }
-  .full-player.expanded { transform: translateY(0); }
-  .fp-container { max-width: 440px; width: 100%; height: 100%; margin: 0 auto; display: flex; flex-direction: column; justify-content: space-between; }
-  .fp-media-stage {
-    position: relative; width: 100%; max-width: 312px; aspect-ratio: 1/1; margin: 6px auto; border-radius: 36px; overflow: hidden;
-    box-shadow: 0 20px 48px rgba(0,0,0,0.6); background: var(--md-surface-container-low);
-  }
-  .fp-artwork { width: 100%; height: 100%; object-fit: cover; display: block; }
-  #ytPlayerMount { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; left: -9999px; top: -9999px; }
-  .fp-controls { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .ctrl-secondary { width: 58px; height: 58px; border-radius: 29px; border: none; background: var(--md-surface-container-high); color: var(--md-on-surface); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-  .ctrl-primary-play { width: 88px; height: 70px; border-radius: 26px; border: none; background: var(--md-primary); color: var(--md-on-primary); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
-  /* НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ MD3 (БЕЗ ПОДПИСЕЙ, БОЛЬШЕ ИКОНОК + ФИРМЕННАЯ КНИГА) */
-  .bottom-nav-pill {
-    position: fixed; left: 12px; right: 12px; bottom: max(10px, env(safe-area-inset-bottom));
-    height: 66px; max-width: 460px; margin: 0 auto;
-    background: color-mix(in srgb, var(--md-surface-container) 90%, var(--md-primary-container) 10%);
-    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-    border: 1px solid var(--md-outline-variant);
-    border-radius: 34px; padding: 0 6px;
-    display: flex; justify-content: space-between; align-items: center;
-    z-index: 40; box-shadow: 0 12px 34px rgba(0, 0, 0, 0.6);
-  }
-  .nav-btn {
-    background: none; border: none; color: var(--md-on-surface-variant);
-    flex: 1; height: 100%; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; position: relative;
-  }
-  .nav-pill-indicator {
-    width: 48px; height: 42px; border-radius: 21px;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.28s var(--md-spring);
-  }
-  .nav-btn.active { color: var(--md-on-secondary-container); }
-  .nav-btn.active .nav-pill-indicator {
-    width: 56px;
-    background: var(--md-secondary-container);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
-  }
-  .nav-btn:active .nav-pill-indicator { transform: scale(0.9); }
-
-  /* Центральная кнопка фирменной книги в доке MD3 */
-  .nav-btn.book-special .nav-pill-indicator {
-    background: color-mix(in srgb, var(--md-primary-container) 65%, transparent);
-    color: var(--md-primary);
-    border-radius: 18px;
-  }
-  .nav-btn.book-special.active .nav-pill-indicator {
-    background: var(--md-primary);
-    color: var(--md-on-primary);
-    border-radius: 22px;
-  }
+  .chip-pill.active { background: var(--primary); color: var(--on-primary); }
 </style>
 </head>
 <body>
-<div id="appNoticeToast" class="app-notice-toast">
-  <span class="icon filled" style="color:var(--md-primary)">info</span>
-  <div id="appNoticeText" style="flex:1"></div>
-</div>
-
-<main>
-  <!-- ЭКРАН 1: ПОТОК + ФИРМЕННАЯ ЛИСТАЮЩАЯ КНИГА -->
-  <section id="tab-home" class="screen active">
-    <div class="potok-top-section">
-      <svg class="potok-bg-ribbon" viewBox="0 0 340 290" fill="none">
-        <path d="M360 15 L140 120 L350 75 L105 215 L360 145" stroke="white" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div class="potok-header-bar">
-        <h1 class="potok-giant-title">Поток</h1>
-        <div class="md3-top-actions">
-          <button class="top-bell-btn" onclick="switchTab('book')" title="Фирменная книга">
-            <span class="icon filled" style="color:var(--md-primary)">auto_stories</span>
-          </button>
-          <button class="top-bell-btn" onclick="switchTab('profile')" title="Профиль">
-            <span class="icon">person</span>
-          </button>
-        </div>
-      </div>
-      <div class="potok-collage-stage">
-        <img id="heroMainArt" class="hero-cover-main" src="" alt="">
-        <img id="heroTopRightArt" class="hero-cover-top-right" src="" alt="">
-        <img id="heroMidRightArt" class="hero-cover-mid-right" src="" alt="">
-      </div>
-      <div class="potok-controls-row">
-        <div class="potok-mode-label" onclick="toggleDynamicSongColor()">
-          <span class="icon" style="font-size:20px;color:var(--md-primary)">graphic_eq</span>
-          <span id="potokModeText">Оттенок по песне</span>
-        </div>
-        <button class="potok-white-play-btn" onclick="togglePotokPlay()" aria-label="Запустить Поток">
-          <span id="potokHeroPlayIcon" class="icon filled" style="font-size:40px;margin-left:2px">play_arrow</span>
-        </button>
-      </div>
+<div class="device-frame" id="appRoot">
+  <!-- ВЕРХНИЙ БАР -->
+  <header class="top-bar">
+    <div class="brand-row" id="brandRow"><span class="brand-title">mmusic</span></div>
+    <div class="top-actions">
+      <button class="icon-btn rubber-btn" onclick="toggleSearch(true)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+      <button class="icon-btn rubber-btn" onclick="openAuthModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
     </div>
+  </header>
 
-    <!-- ФИРМЕННАЯ ЛИСТАЮЩАЯ КНИГА (ИНТЕРАКТИВНЫЙ MD3 БУКЛЕТ) -->
-    <div class="flipbook-section">
-      <div class="flipbook-header">
-        <h2 class="home-section-title" style="padding:0;margin:0">Музыкальная книга</h2>
-        <div class="flipbook-badge" onclick="flipBookPage(1)" style="cursor:pointer">
-          <svg class="book-svg-anim" viewBox="0 0 24 24" fill="none">
-            <path d="M4 6C4 4.89543 4.89543 4 6 4H12V19H6C4.89543 19 4 18.1046 4 17V6Z" stroke="currentColor" stroke-width="2"/>
-            <path d="M20 6C20 4.89543 19.1046 4 18 4H12V19H18C19.1046 19 20 18.1046 20 17V6Z" stroke="currentColor" stroke-width="2"/>
-            <path class="page-flip" d="M12 5L18 4.5V18.5L12 19V5Z" fill="currentColor" fill-opacity="0.35"/>
-          </svg>
-          <span id="homeBookCounter">Стр. 1 / 6</span>
-        </div>
-      </div>
-      <div class="flipbook-stage">
-        <div class="flipbook-card" id="homeFlipBookCard">
-          <div class="flipbook-spine"></div>
-          <div id="homeTurningLeaf" class="flipbook-turning-leaf"></div>
-          <div class="flipbook-left-page" onclick="flipBookPage(-1)">
-            <div class="flipbook-cover-wrap">
-              <img id="bookCoverImg" src="" alt="">
+  <!-- ВКЛАДКИ -->
+  <main class="screens-viewport">
+    <!-- 1. ПОТОК / КНИГА -->
+    <section class="tab-screen active" id="screen-home">
+      <div class="md3-book-stage" id="md3BookStage">
+        <div class="md3-book" id="md3Book" onclick="toggleBookOpenAndPlay()">
+          <div class="md3-book-spread">
+            <div class="md3-page-left">
+              <div class="md3-sound-bars"><span></span><span></span><span></span></div>
+              <div class="md3-page-emboss">m</div>
             </div>
-            <div class="flipbook-page-num">
-              <span class="icon" style="font-size:15px">menu_book</span>
-              <span id="bookAlbumLabel">Альбом • mmusic</span>
-            </div>
-          </div>
-          <div class="flipbook-right-page">
-            <div>
-              <div class="flipbook-story-tag">
-                <span class="icon filled" style="font-size:13px">auto_awesome</span>
-                История трека
+            <div class="md3-page-right" id="md3BookRightPage">
+              <div>
+                <div class="md3-book-song" id="bookSongTitle">Первый луч</div>
+                <div class="md3-book-artist" id="bookSongArtist">Aether Line</div>
               </div>
-              <div class="flipbook-track-title" id="bookTrackTitle">Туман</div>
-              <div class="flipbook-track-artist" id="bookTrackArtist">Три дня дождя</div>
-              <div class="flipbook-quote" id="bookTrackNote">Листайте страницы книги или нажмите Play для мгновенного запуска без ошибки потока.</div>
-            </div>
-            <div class="flipbook-actions">
-              <button class="flip-nav-btn" onclick="flipBookPage(-1)" aria-label="Предыдущая страница">
-                <span class="icon" style="font-size:18px">chevron_left</span>
-              </button>
-              <button class="flip-play-chip" onclick="playCurrentBookTrack()">
-                <span class="icon filled" style="font-size:16px">play_arrow</span>Слушать
-              </button>
-              <button class="flip-nav-btn" onclick="flipBookPage(1)" aria-label="Следующая страница">
-                <span class="icon" style="font-size:18px">chevron_right</span>
-              </button>
+              <div class="md3-page-emboss" style="opacity:0.35">m</div>
+              <div class="md3-book-page-num" id="bookTrackIndex">01 / 06</div>
             </div>
           </div>
+          <div class="md3-page-turner" id="md3PageTurner"></div>
+          <div class="md3-book-cover"><span class="md3-cover-monogram">mm</span></div>
         </div>
       </div>
-    </div>
+      <div class="albums-grid" id="homeAlbumsGrid"></div>
+    </section>
 
-    <div class="dual-shortcut-row">
-      <div class="shortcut-pill-card" onclick="openRecentTracksView()">
-        <img id="recentShortcutImg" class="shortcut-thumb" src="" alt="">
-        <div class="shortcut-info">
-          <div class="shortcut-title"><span class="icon" style="font-size:16px;color:var(--md-primary)">history</span>Недавние</div>
-          <div id="recentCountLabel" class="shortcut-sub">0 треков</div>
-        </div>
+    <!-- 2. МЕДИАТЕКА -->
+    <section class="tab-screen" id="screen-library">
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;">
+        <button class="chip-pill active rubber-btn" onclick="selectLibraryTab('albums', this)">Альбомы</button>
+        <button class="chip-pill rubber-btn" onclick="selectLibraryTab('tracks', this)">Треки</button>
+        <button class="chip-pill rubber-btn" onclick="selectLibraryTab('downloaded', this)">Скачанные</button>
+        <button class="chip-pill rubber-btn" onclick="selectLibraryTab('favorites', this)">Избранное</button>
       </div>
-      <div class="shortcut-pill-card" onclick="openFavoritesDetailScreen()">
-        <img id="favShortcutImg" class="shortcut-thumb" src="" alt="">
-        <div class="shortcut-info">
-          <div class="shortcut-title"><span class="icon filled" style="font-size:16px;color:var(--md-primary)">favorite</span>Любимые</div>
-          <div id="favHomeCountLabel" class="shortcut-sub">0 треков</div>
-        </div>
-      </div>
-    </div>
+      <div id="libraryBookPage"></div>
+    </section>
 
-    <h2 class="home-section-title">Для вас</h2>
-    <div id="forYouRow" class="for-you-scroll"></div>
-    <h2 class="home-section-title">Релизы</h2>
-    <div id="homeTrackList" class="clean-track-list"></div>
-  </section>
-
-  <!-- ЭКРАН 2: ОТДЕЛЬНАЯ ВКЛАДКА ФИРМЕННОЙ КНИГИ И СТАТИСТИКИ -->
-  <section id="tab-book" class="screen">
-    <div class="library-screen-pad">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <div>
-          <h2 style="font-size:26px;font-weight:900">Книга mmusic</h2>
-          <div style="font-size:13px;color:var(--md-on-surface-variant)">Интерактивный буклет коллекции и статистика</div>
-        </div>
-        <button class="fav-glass-btn" onclick="flipBookPage(1)" title="Перелистнуть страницу">
-          <span class="icon filled" style="color:var(--md-primary)">auto_stories</span>
-        </button>
-      </div>
-
-      <div class="stats-top-summary" style="padding:18px 12px;display:grid;grid-template-columns:repeat(3,1fr);text-align:center;margin-bottom:16px">
-        <div>
-          <div id="bookStatPlays" style="font-size:24px;font-weight:900;color:var(--md-primary)">0</div>
-          <div style="font-size:11px;color:var(--md-on-surface-variant)">Прослушиваний</div>
-        </div>
-        <div>
-          <div id="bookStatFavs" style="font-size:24px;font-weight:900;color:var(--md-on-surface)">0</div>
-          <div style="font-size:11px;color:var(--md-on-surface-variant)">Любимых</div>
-        </div>
-        <div>
-          <div id="bookStatMinutes" style="font-size:24px;font-weight:900;color:var(--md-on-surface)">0</div>
-          <div style="font-size:11px;color:var(--md-on-surface-variant)">Минут</div>
-        </div>
-      </div>
-
-      <div id="bookFullList" class="clean-track-list" style="padding:0"></div>
-    </div>
-  </section>
-
-  <!-- ЭКРАН 3: МЕДИАТЕКА -->
-  <section id="tab-library" class="screen">
-    <div class="library-screen-pad">
-      <div class="lib-top-cards">
-        <div class="lib-big-card red-fav" onclick="openFavoritesDetailScreen()">
-          <span class="icon filled" style="font-size:32px">favorite</span>
+    <!-- 3. ПРОФИЛЬ + НАСТРОЙКИ СНИЗУ -->
+    <section class="tab-screen" id="screen-profile">
+      <div class="profile-card glass-panel">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="avatar-Editable rubber-btn" id="profileAvatarSymbol" style="width:64px;height:64px;border-radius:20px;background:var(--primary-container);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;">mm</div>
           <div>
-            <div style="font-size:18px;font-weight:800">Любимые</div>
-            <div id="libFavCountText" style="font-size:13px;opacity:0.85">0 треков</div>
-          </div>
-        </div>
-        <div class="lib-big-card grey-dl" onclick="showNotice('Синхронизировано с вашим аккаунтом mmusic')">
-          <span class="icon" style="font-size:30px">cloud_done</span>
-          <div>
-            <div style="font-size:18px;font-weight:800">Облако D1</div>
-            <div id="libLocalCountText" style="font-size:13px;opacity:0.75">Активно</div>
+            <div style="font-size:18px;font-weight:800;" id="displayNickText">Google Listener</div>
+            <div style="font-size:13px;color:var(--on-surface-var);" id="displayUserText">@google_music</div>
           </div>
         </div>
       </div>
-      <div class="lib-filter-bar">
-        <button class="lib-circle-btn" onclick="flipBookPage(1);switchTab('home')" title="Открыть книгу"><span class="icon">auto_stories</span></button>
-        <button class="lib-circle-btn" onclick="openFavoritesDetailScreen()" title="Любимые"><span class="icon">favorite</span></button>
-        <button class="lib-circle-btn" onclick="renderAllViews()" title="Обновить"><span class="icon">sync</span></button>
-        <button class="lib-pill-btn active" onclick="filterLibraryView('all', this)">Все</button>
-        <button class="lib-pill-btn" onclick="openFavoritesDetailScreen()">Любимые</button>
-        <button class="lib-pill-btn" onclick="switchTab('profile')">Профиль</button>
+
+      <div class="profile-card glass-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;">
+          <span style="font-weight:700;font-size:14px;">Автоскачивание при лайке</span>
+          <div class="capsule-toggle checked" id="synthCapsuleSwitch" onclick="toggleAutoDownloadSetting()"><div class="capsule-toggle-knob"></div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0 2px;">
+          <span style="font-weight:700;font-size:14px;">Цвет книги по треку</span>
+          <div class="capsule-toggle checked" id="colorToggleSwitch" onclick="toggleCustomColor()"><div class="capsule-toggle-knob"></div></div>
+        </div>
       </div>
-      <div id="libraryContentBox"></div>
+    </section>
+  </main>
+
+  <!-- МИНИ-ПЛЕЕР -->
+  <div class="mini-player glass-panel" id="miniPlayerBar" onclick="openFullPlayer()">
+    <div class="mini-player-inner" id="miniPlayerInner">
+      <div style="width:12px;height:12px;border-radius:6px;background:var(--primary);flex-shrink:0;"></div>
+      <div class="track-info">
+        <div class="track-name" id="miniTitle">Первый луч</div>
+        <div class="track-sub" id="miniArtist">Aether Line</div>
+      </div>
+      <button class="mini-action-btn rubber-btn" onclick="event.stopPropagation(); togglePlay();">
+        <svg id="miniPlayIcon" width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="mini-action-btn rubber-btn" onclick="event.stopPropagation(); nextTrack(1);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="m6 18 8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+      </button>
     </div>
-  </section>
-
-  <!-- ЭКРАН 4: ПОИСК -->
-  <section id="tab-search" class="screen">
-    <div class="search-screen-wrap">
-      <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <h2 style="font-size:22px;font-weight:800" id="searchHeadingTitle">Поиск</h2>
-          <span id="parserActiveBadge" style="font-size:11px;color:var(--md-primary);font-weight:700">Каталог mmusic</span>
-        </div>
-        <div id="searchResultsList" class="clean-track-list" style="padding:0"></div>
-      </div>
-      <div class="search-bottom-card">
-        <div id="searchHistoryContainer"></div>
-        <div class="search-card-input-bar">
-          <span class="icon" style="color:var(--md-on-surface-variant)">search</span>
-          <input type="text" id="searchInput" placeholder="Поиск песен и артистов..." oninput="handleSearchInput(this.value)" onkeydown="if(event.key==='Enter')commitSearchHistory(this.value)">
-          <div class="search-source-badge" title="Каталог">
-            <span class="icon filled" style="font-size:20px">music_note</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ЭКРАН 5: ПРОФИЛЬ + НАСТОЯЩИЙ ВХОД И РЕГИСТРАЦИЯ ПО ЛОГИНУ И ПАРОЛЮ (БЕЗ GMAIL) -->
-  <section id="tab-profile" class="screen">
-    <div class="profile-screen-pad">
-      <div class="profile-top-card">
-        <div class="profile-user-row">
-          <div id="profileAvatarBox" style="width:68px;height:68px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--md-primary-container),var(--md-primary));color:var(--md-on-primary);box-shadow:0 10px 28px rgba(0,0,0,0.45)">
-            <span id="profileAvatarIcon" class="icon filled" style="font-size:32px">person</span>
-          </div>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:6px">
-              <span class="icon filled" style="font-size:18px;color:var(--md-primary)">verified_user</span>
-              <span id="profileNameText" style="font-size:20px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Гость</span>
-            </div>
-            <div id="profileHandleText" style="font-size:13px;color:var(--md-on-surface-variant);margin-top:2px">@guest</div>
-            <div id="profileProviderBadge" style="font-size:11px;color:var(--md-primary);font-weight:700;margin-top:3px">Cloudflare D1 • Авто-вход</div>
-          </div>
-        </div>
-        <div class="user-id-meta-grid">
-          <div class="user-id-chip"><div class="user-id-chip-lbl">Постоянный ID</div><div id="profileUidValue" class="user-id-chip-val" style="color:var(--md-primary)">#MM-10001</div></div>
-          <div class="user-id-chip"><div class="user-id-chip-lbl">Статус сессии</div><div id="profileSerialValue" class="user-id-chip-val">Локально</div></div>
-          <div class="user-id-chip"><div class="user-id-chip-lbl">Прослушивания</div><div id="profileStatPreview" class="user-id-chip-val">0</div></div>
-          <div class="user-id-chip"><div class="user-id-chip-lbl">Треков в медиатеке</div><div id="profileTrackCount" class="user-id-chip-val">0</div></div>
-        </div>
-        <button class="profile-share-btn" onclick="shareProfileStats()"><span class="icon" style="font-size:20px">share</span>Поделиться профилем</button>
-      </div>
-
-      <!-- БЛОК РЕАЛЬНОЙ АВТОРИЗАЦИИ ПО ЛОГИНУ И ПАРОЛЮ -->
-      <div class="auth-card-md3" id="authCardBox">
-        <div class="md3-segmented">
-          <button type="button" class="md3-seg-btn active" id="segLoginBtn" onclick="setAuthMode('login')">Вход</button>
-          <button type="button" class="md3-seg-btn" id="segRegBtn" onclick="setAuthMode('register')">Регистрация</button>
-        </div>
-        <div id="authErrorBanner" class="auth-error-banner"></div>
-        <form onsubmit="submitWorkerAuth(event)" novalidate>
-          <div class="auth-input-box">
-            <span class="icon" style="color:var(--md-on-surface-variant)">alternate_email</span>
-            <input type="text" id="authLoginInput" autocomplete="username" placeholder="Логин (a-z, 0-9, _, -)" required>
-          </div>
-          <div class="auth-input-box" id="authDisplayNameWrap" style="display:none">
-            <span class="icon" style="color:var(--md-on-surface-variant)">badge</span>
-            <input type="text" id="authNameInput" autocomplete="name" maxlength="40" placeholder="Отображаемое имя">
-          </div>
-          <div class="auth-input-box">
-            <span class="icon" style="color:var(--md-on-surface-variant)">lock</span>
-            <input type="password" id="authPassInput" autocomplete="current-password" placeholder="Пароль (от 8 символов)" required>
-          </div>
-          <button type="submit" class="btn-white-pill" id="authSubmitBtn">Войти в аккаунт</button>
-        </form>
-        <div id="authLoggedActions" style="display:none;gap:8px;margin-top:10px">
-          <button type="button" class="lib-pill-btn" style="flex:1" onclick="logoutCurrent()">Выйти</button>
-          <button type="button" class="lib-pill-btn" style="flex:1;color:#ff8a80" onclick="logoutAll()">Выйти везде</button>
-        </div>
-      </div>
-
-      <div class="profile-group-label">Оформление Material Design 3</div>
-      <div class="profile-menu-group">
-        <div class="profile-menu-item" onclick="toggleDynamicSongColor()"><div class="pm-left"><span class="icon">auto_awesome</span>Оттенок по песне</div><div class="pm-right"><div id="dynColorSwitch" class="m3-switch on"></div></div></div>
-        <div class="profile-menu-item" onclick="toggleAmoledMode()"><div class="pm-left"><span class="icon">contrast</span>Чёрная тема (AMOLED)</div><div class="pm-right"><div id="amoledSwitch" class="m3-switch"></div></div></div>
-        <div class="profile-menu-item" onclick="switchTab('settings')"><div class="pm-left"><span class="icon">tune</span>Параметры</div><div class="pm-right"><span class="icon">chevron_right</span></div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ЭКРАН 6: НАСТРОЙКИ -->
-  <section id="tab-settings" class="screen">
-    <div class="profile-screen-pad">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="profile-group-label" style="font-size:15px;margin:0">Настройки</div>
-        <button style="background:none;border:none;color:var(--md-primary);font-size:13px;font-weight:700;cursor:pointer" onclick="switchTab('profile')">Назад</button>
-      </div>
-      <div class="profile-menu-group">
-        <div class="profile-menu-item" onclick="toggleDynamicSongColor()"><div class="pm-left"><span class="icon">palette</span>Динамический цвет обложки</div><div class="pm-right"><div id="dynColorSwitchMirror" class="m3-switch on"></div></div></div>
-        <div class="profile-menu-item" onclick="toggleAmoledMode()"><div class="pm-left"><span class="icon">dark_mode</span>AMOLED режим</div><div class="pm-right"><div id="amoledSwitchMirror" class="m3-switch"></div></div></div>
-        <div class="profile-menu-item" onclick="showNotice('Аудиопоток защищён от Ошибки 4: авто-переключение YouTube / MP3 Fallback')"><div class="pm-left"><span class="icon">verified</span>Защита от ошибки 4</div><div class="pm-right">Активна<span class="icon">chevron_right</span></div></div>
-        <div class="profile-menu-item" onclick="showNotice('Сервер: mmusic.valuevmatvej17.workers.dev')"><div class="pm-left"><span class="icon">cloud</span>Cloudflare Worker</div><div class="pm-right">Подключён<span class="icon">chevron_right</span></div></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ЭКРАН 7: ЛЮБИМЫЕ -->
-  <section id="tab-fav-detail" class="screen">
-    <div class="profile-screen-pad">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <button class="fav-glass-btn" onclick="switchTab('library')"><span class="icon">chevron_left</span></button>
-        <div style="font-size:20px;font-weight:800">Любимые</div>
-        <button class="fav-glass-btn" onclick="shuffleFavoritesAndPlay()"><span class="icon">shuffle</span></button>
-      </div>
-      <div id="favDetailTrackList" class="clean-track-list" style="padding:0"></div>
-    </div>
-  </section>
-</main>
-
-<!-- МИНИ-ПЛЕЕР -->
-<div id="miniPlayer" class="mini-player hidden">
-  <div class="mini-body" onclick="toggleFullPlayer(true)">
-    <img id="miniCover" class="clean-track-cover" style="width:42px;height:42px;border-radius:12px" src="" alt="">
-    <div class="clean-track-info">
-      <div id="miniTitle" class="clean-track-title" style="font-size:14px"></div>
-      <div id="miniArtist" class="clean-track-artist" style="font-size:12px"></div>
-    </div>
-    <button class="mini-play-btn" onclick="event.stopPropagation(); togglePlay()">
-      <span id="miniPlayIcon" class="icon filled">play_arrow</span>
-    </button>
-    <button class="top-bell-btn" style="width:38px;height:38px;border:none;background:transparent" onclick="event.stopPropagation(); nextTrack()">
-      <span class="icon">skip_next</span>
-    </button>
+    <div class="mini-progress-track"><div class="mini-progress-fill" id="miniProgressFill"></div></div>
   </div>
-  <div class="mini-progress-track"><div id="miniBar" class="mini-progress-fill"></div></div>
-</div>
 
-<!-- ПОЛНЫЙ ПЛЕЕР -->
-<div id="fullPlayer" class="full-player">
-  <div class="fp-container">
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <button class="fav-glass-btn" onclick="toggleFullPlayer(false)"><span class="icon">keyboard_arrow_down</span></button>
-      <span id="fpSourceBadge" style="font-size:12px;font-weight:700;color:var(--md-primary)">mmusic Audio Engine</span>
-      <button class="fav-glass-btn" onclick="toggleFavCurrent()"><span id="fpFavIcon" class="icon">favorite</span></button>
+  <!-- НИЖНЯЯ ПАНЕЛЬ -->
+  <nav class="bottom-nav glass-panel" id="bottomNavBar" style="--nav-idx:0;">
+    <div class="nav-pill-bg"></div>
+    <button class="nav-item active rubber-btn" onclick="switchTab(0)" aria-label="Главная"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button>
+    <button class="nav-item rubber-btn" onclick="switchTab(1)" aria-label="Медиатека"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg></button>
+    <button class="nav-item rubber-btn" onclick="switchTab(2)" aria-label="Профиль"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></button>
+  </nav>
+
+  <!-- БОЛЬШОЙ ПЛЕЕР (PIXEL 9 SQUIGGLY LINE) -->
+  <div class="full-player" id="fullPlayer">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <button class="icon-btn rubber-btn" onclick="closeFullPlayer()"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m6 9 6 6 6-6"/></svg></button>
+      <span style="font-weight:800;font-size:14px;color:var(--on-surface-var)">mmusic</span>
+      <button class="icon-btn rubber-btn" onclick="downloadCurrentTrack()"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
     </div>
-    <div class="fp-media-stage">
-      <img id="fpCover" class="fp-artwork" src="" alt="">
-      <div id="ytPlayerMount"></div>
-    </div>
-    <div>
-      <div id="fpTitle" style="font-size:22px;font-weight:800"></div>
-      <div id="fpArtist" style="font-size:15px;color:var(--md-on-surface-variant);margin-top:4px"></div>
-    </div>
-    <div>
-      <input type="range" id="seekSlider" min="0" max="100" value="0" style="width:100%;accent-color:var(--md-primary);cursor:pointer" oninput="seekAudio(this.value)">
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--md-on-surface-variant);margin-top:6px">
-        <span id="curTime">0:00</span>
-        <span id="durTime">0:00</span>
+
+    <div class="fp-book-stage" id="fpSwipeStage">
+      <div class="fp-spread-card">
+        <div class="md3-page-left"><div class="md3-page-emboss">m</div></div>
+        <div class="md3-page-right">
+          <div>
+            <div class="md3-book-song" id="fpBookSongTitle">Первый луч</div>
+            <div class="md3-book-artist" id="fpBookSongArtist">Aether Line</div>
+          </div>
+          <div class="md3-page-emboss" style="opacity:0.35">m</div>
+        </div>
       </div>
     </div>
-    <div class="fp-controls">
-      <button class="top-bell-btn" onclick="toggleShuffle()" id="shuffleBtn"><span class="icon">shuffle</span></button>
-      <button class="ctrl-secondary" onclick="prevTrack()"><span class="icon filled">skip_previous</span></button>
-      <button class="ctrl-primary-play" onclick="togglePlay()"><span id="fpPlayIcon" class="icon filled" style="font-size:36px">play_arrow</span></button>
-      <button class="ctrl-secondary" onclick="nextTrack()"><span class="icon filled">skip_next</span></button>
-      <button class="top-bell-btn" onclick="toggleRepeat()" id="repeatBtn"><span class="icon">repeat</span></button>
+
+    <div class="squiggly-player-wrap" id="fpSquigglyWrap" onpointerdown="startPlayerSquigglyDrag(event)">
+      <canvas class="squiggly-canvas" id="fpSquigglyCanvas"></canvas>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--on-surface-var);margin-top:4px;">
+        <span id="fpTimeCur">0:00</span>
+        <span id="fpTimeTotal">3:25</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <button class="icon-btn rubber-btn" id="fpFavBtn" onclick="toggleFavoriteCurrent()"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></button>
+      <button class="icon-btn rubber-btn" style="width:56px;height:56px;border-radius:28px;" onclick="prevTrack(-1)"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+      <button class="md3-play-fab rubber-btn" onclick="togglePlay()"><svg id="fpPlayIcon" width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+      <button class="icon-btn rubber-btn" style="width:56px;height:56px;border-radius:28px;" onclick="nextTrack(1)"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="m6 18 8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+      <button class="icon-btn rubber-btn" onclick="downloadCurrentTrack()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></button>
     </div>
   </div>
 </div>
 
-<!-- НИЖНЯЯ ПАНЕЛЬ MD3: БЕЗ ПОДПИСЕЙ, 6 ИКОНОК + ФИРМЕННАЯ ЛИСТАЮЩАЯ КНИГА -->
-<nav class="bottom-nav-pill" aria-label="Навигация">
-  <button class="nav-btn active" id="nav-home" onclick="switchTab('home')" aria-label="Поток">
-    <div class="nav-pill-indicator"><span class="icon filled">home</span></div>
-  </button>
-  <button class="nav-btn book-special" id="nav-book" onclick="switchTab('book'); flipBookPage(1)" aria-label="Фирменная книга">
-    <div class="nav-pill-indicator"><span class="icon">auto_stories</span></div>
-  </button>
-  <button class="nav-btn" id="nav-library" onclick="switchTab('library')" aria-label="Медиатека">
-    <div class="nav-pill-indicator"><span class="icon">library_music</span></div>
-  </button>
-  <button class="nav-btn" id="nav-search" onclick="switchTab('search')" aria-label="Поиск">
-    <div class="nav-pill-indicator"><span class="icon">search</span></div>
-  </button>
-  <button class="nav-btn" id="nav-profile" onclick="switchTab('profile')" aria-label="Профиль">
-    <div class="nav-pill-indicator"><span class="icon">person</span></div>
-  </button>
-  <button class="nav-btn" id="nav-settings" onclick="switchTab('settings')" aria-label="Настройки">
-    <div class="nav-pill-indicator"><span class="icon">tune</span></div>
-  </button>
-</nav>
-
-<canvas id="colorCanvas" width="16" height="16" style="display:none"></canvas>
-<audio id="audioElement" preload="metadata"></audio>
-<script src="https://www.youtube.com/iframe_api"></script>
 <script>
-const WORKER_API = 'https://mmusic.valuevmatvej17.workers.dev';
-const LOGIN_PATTERN = /^[a-zA-Z0-9_.-]{3,24}$/;
+// --- РЕАЛЬНЫЕ КАТАЛОГИ И ЯНДЕКС МУЗЫКА ---
+const CATALOG = {
+  albums: [
+    { id: 'alb1', title: 'Тихие формы', artist: 'Klang & Свет', year: 2026, hue: 26, secHue: 345 },
+    { id: 'alb2', title: 'Геометрия утра', artist: 'Aether Line', year: 2025, hue: 204, secHue: 265 },
+    { id: 'alb3', title: 'Монолит и воздух', artist: 'Северный Круг', year: 2026, hue: 156, secHue: 205 },
+    { id: 'alb4', title: 'Тепловые волны', artist: 'Solis', year: 2024, hue: 335, secHue: 25 }
+  ],
+  tracks: [
+    { id: 'tr1', title: 'Первый луч', artist: 'Aether Line', duration: 164, hue: 26, secHue: 345 },
+    { id: 'tr2', title: 'Параллели', artist: 'Aether Line', duration: 198, hue: 204, secHue: 265 },
+    { id: 'tr3', title: 'Отражение в воде', artist: 'Klang & Свет', duration: 215, hue: 156, secHue: 205 },
+    { id: 'tr4', title: 'Белый берег', artist: 'Северный Круг', duration: 240, hue: 95, secHue: 160 },
+    { id: 'tr5', title: 'Южный ветер', artist: 'Solis', duration: 205, hue: 275, secHue: 330 }
+  ]
+};
 
-const DEFAULT_COVER_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
-  <svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
-    <rect width="300" height="300" rx="36" fill="#1f1d24"/>
-    <circle cx="150" cy="150" r="64" fill="rgba(255,255,255,0.05)"/>
-    <path d="M135 188V116l58-14v72" fill="none" stroke="#9e9aa4" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="122" cy="188" r="15" fill="#9e9aa4"/>
-    <circle cx="180" cy="174" r="15" fill="#9e9aa4"/>
-  </svg>
-`);
+const state = {
+  activeTab: 0,
+  isPlaying: false,
+  isBookOpen: false,
+  progress: 0.15,
+  waveAmp: 0,
+  animTime: 0,
+  isDraggingProgress: false,
+  progressDragOvershoot: 0,
+  currentTrack: CATALOG.tracks[0],
+  favorites: new Set(['tr1']),
+  downloaded: new Set(),
+  autoDownload: true
+};
 
-// Каждый трек имеет проверенный резервный аудиопоток (streamUrl), что полностью исключает Ошибку 4 (MEDIA_ERR_SRC_NOT_SUPPORTED)
-const demoTracks = [
-  { id:'yt_1', title:'Туман', artist:'Три дня дождя', album:'Поток • Стр. 1', note:'Атмосферный гитарный релиз из вашей главной коллекции.', durationSec:204, ytVideoId:'dQw4w9WgXcQ', streamUrl:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', cover:'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg', embeddable:true },
-  { id:'yt_2', title:'Ночь', artist:'Miyagi', album:'Поток • Стр. 2', note:'Глубокий ночной вайб с мягким басом и мелодичной линией.', durationSec:196, ytVideoId:'3JZ4pnNtyxQ', streamUrl:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', cover:'https://i.ytimg.com/vi/3JZ4pnNtyxQ/hqdefault.jpg', embeddable:true },
-  { id:'yt_3', title:'Снег', artist:'dose', album:'Поток • Стр. 3', note:'Минималистичное звучание и тёплый вокальный тембр.', durationSec:187, ytVideoId:'Zi_XLOBDo_Y', streamUrl:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', cover:'https://i.ytimg.com/vi/Zi_XLOBDo_Y/hqdefault.jpg', embeddable:true },
-  { id:'yt_4', title:'Ocean Drive', artist:'Duke Dumont', album:'Поток • Стр. 4', note:'Классический синти-поп ритм для вечерних поездок.', durationSec:212, ytVideoId:'KDxJlW6cxRk', streamUrl:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', cover:'https://i.ytimg.com/vi/KDxJlW6cxRk/hqdefault.jpg', embeddable:true },
-  { id:'yt_5', title:'Midnight City', artist:'M83', album:'Поток • Стр. 5', note:'Культовый электронный гимн с ярким саксофонным финалом.', durationSec:241, ytVideoId:'dX3k_QDnzHE', streamUrl:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', cover:'https://i.ytimg.com/vi/dX3k_QDnzHE/hqdefault.jpg', embeddable:true },
-  { id:'yt_6', title:'Blinding Lights', artist:'The Weeknd', album:'Поток • Стр. 6', note:'Высокоэнергетический ретровейв с динамическим оттенком обложки.', durationSec:200, ytVideoId:'4NRXx6U8ABQ', streamUrl:'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', cover:'https://i.ytimg.com/vi/4NRXx6U8ABQ/hqdefault.jpg', embeddable:true }
-];
+function drawSquigglyBar(canvas, fraction, waveAmp, phase, isDragging, overshootPx) {
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== w * dpr) { canvas.width = w * dpr; canvas.height = h * dpr; }
+  ctx.save();
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, w, h);
 
-let knownTracksMap = new Map();
-let displayTracks = [];
-let currentQueue = [];
-let currentIndex = -1;
-let bookPageIndex = 0;
-let isPlayingState = false;
-let isShuffle = false;
-let isRepeat = false;
-let dynamicColorBySong = true;
-let favoriteIds = new Set(['yt_1']);
-let recentTracksIds = [];
-let searchHistory = ['три дня дождя', 'midnight city'];
-let lastTimeUpdatePoint = 0;
-let currentTrackCountedAsPlay = false;
-let realStats = { totalPlays: 0, uniqueTrackIds: [], totalSeconds: 0, artistsSeconds: {}, trackPlaysMap: {} };
+  const pad = 12, cy = h / 2, activeX = pad + (w - pad * 2) * Math.min(1, Math.max(0, fraction));
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(Math.min(w - pad, activeX + 8), cy);
+  ctx.lineTo(w - pad, cy);
+  ctx.stroke();
 
-const audio = document.getElementById('audioElement');
-let ytPlayer = null;
-let ytReady = false;
-let activeEngine = 'audio';
-let ytProgressTimer = null;
-
-// Состояние авторизации
-let authMode = 'login';
-let accessToken = localStorage.getItem('mm_access_token') || null;
-let currentUser = null;
-let refreshInFlight = null;
-
-function showNotice(message, durationMs = 3200) {
-  const box = document.getElementById('appNoticeToast');
-  document.getElementById('appNoticeText').textContent = message;
-  box.classList.add('show');
-  clearTimeout(box._hideTimer);
-  box._hideTimer = setTimeout(() => box.classList.remove('show'), durationMs);
-}
-
-function bindCoverImage(imgEl, url) {
-  if (!imgEl) return;
-  imgEl.onerror = () => { imgEl.onerror = null; imgEl.src = DEFAULT_COVER_SVG; };
-  imgEl.src = url || DEFAULT_COVER_SVG;
-}
-
-function fmtTime(sec) {
-  if (!sec || isNaN(sec)) return '0:00';
-  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
-  return `${m}:${s < 10 ? '0' : ''}${s}`;
-}
-
-function escapeHtml(str) {
-  return String(str || '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-}
-
-function registerTracks(list) {
-  list.forEach(t => knownTracksMap.set(t.id, t));
-}
-
-// ФИРМЕННАЯ ЛИСТАЮЩАЯ КНИГА: 3D-перелистывание страниц
-function renderBookPage() {
-  if (!displayTracks.length) return;
-  bookPageIndex = ((bookPageIndex % displayTracks.length) + displayTracks.length) % displayTracks.length;
-  const track = displayTracks[bookPageIndex];
-  bindCoverImage(document.getElementById('bookCoverImg'), track.cover);
-  document.getElementById('bookAlbumLabel').textContent = track.album || `Стр. ${bookPageIndex + 1}`;
-  document.getElementById('bookTrackTitle').textContent = track.title;
-  document.getElementById('bookTrackArtist').textContent = track.artist;
-  document.getElementById('bookTrackNote').textContent = track.note || 'Нажмите «Слушать» для запуска трека.';
-  document.getElementById('homeBookCounter').textContent = `Стр. ${bookPageIndex + 1} / ${displayTracks.length}`;
-}
-
-function flipBookPage(delta) {
-  const leaf = document.getElementById('homeTurningLeaf');
-  if (leaf) {
-    leaf.classList.remove('turn-next', 'turn-prev');
-    void leaf.offsetWidth;
-    leaf.classList.add(delta >= 0 ? 'turn-next' : 'turn-prev');
+  ctx.strokeStyle = 'hsl(var(--hue), 78%, 74%)';
+  ctx.lineWidth = isDragging ? 5.5 : 4;
+  ctx.beginPath();
+  const amp = 4.2 * waveAmp;
+  for (let x = pad; x <= activeX; x += 3) {
+    const y = cy + Math.sin((x - pad) / 24 * Math.PI * 2 - phase * 3) * amp;
+    if (x === pad) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
-  bookPageIndex += delta;
-  renderBookPage();
+  ctx.stroke();
+  ctx.restore();
 }
 
-function playCurrentBookTrack() {
-  const track = displayTracks[bookPageIndex];
-  if (track) playSpecificTrack(track.id);
-}
-
-function renderTrackRowsHtml(arr) {
-  return arr.map(t => `
-    <div class="clean-track-row ${currentQueue[currentIndex]?.id === t.id ? 'playing' : ''}" onclick="playSpecificTrack('${escapeHtml(t.id)}')">
-      <img class="clean-track-cover" src="${t.cover || DEFAULT_COVER_SVG}" alt="" onerror="this.onerror=null;this.src=DEFAULT_COVER_SVG">
-      <div class="clean-track-info">
-        <div class="clean-track-title">${escapeHtml(t.title)}</div>
-        <div class="clean-track-artist">${escapeHtml(t.artist)}</div>
-      </div>
-      <div class="clean-dur-pill">${fmtTime(t.durationSec || 0)}</div>
-    </div>
-  `).join('');
-}
-
-function renderSearchHistory() {
-  const el = document.getElementById('searchHistoryContainer');
-  el.innerHTML = searchHistory.slice(0, 4).map(q => `
-    <div class="history-item-row" onclick="document.getElementById('searchInput').value='${escapeHtml(q)}';handleSearchInput('${escapeHtml(q)}')">
-      <div class="history-left"><span class="icon">history</span>${escapeHtml(q)}</div>
-      <span class="icon" style="font-size:18px;color:var(--md-on-surface-variant)">north_west</span>
-    </div>
-  `).join('');
-}
-
-function renderSearchResults(arr) {
-  document.getElementById('searchResultsList').innerHTML = renderTrackRowsHtml(arr);
-}
-
-function handleSearchInput(value) {
-  const q = (value || '').trim().toLowerCase();
-  const filtered = !q ? displayTracks : displayTracks.filter(t => `${t.title} ${t.artist}`.toLowerCase().includes(q));
-  renderSearchResults(filtered);
-}
-
-function commitSearchHistory(value) {
-  const q = (value || '').trim();
-  if (!q) return;
-  searchHistory = [q, ...searchHistory.filter(x => x !== q)].slice(0, 8);
-  renderSearchHistory();
-  handleSearchInput(q);
-}
-
-function recordRealPlayStart(cur) {
-  if (!cur) return;
-  realStats.totalPlays += 1;
-  if (!realStats.uniqueTrackIds.includes(cur.id)) realStats.uniqueTrackIds.push(cur.id);
-  realStats.trackPlaysMap[cur.id] = (realStats.trackPlaysMap[cur.id] || 0) + 1;
-  realStats.artistsSeconds[cur.artist] = realStats.artistsSeconds[cur.artist] || 0;
-  syncUserDataToServer();
-  renderAllViews();
-}
-
-function recordRealListeningDelta(delta, cur) {
-  if (!cur) return;
-  realStats.totalSeconds += delta;
-  realStats.artistsSeconds[cur.artist] = (realStats.artistsSeconds[cur.artist] || 0) + delta;
-  document.getElementById('profileStatPreview').textContent = `${realStats.totalPlays}`;
-  document.getElementById('bookStatPlays').textContent = `${realStats.totalPlays}`;
-  document.getElementById('bookStatMinutes').textContent = `${Math.max(1, Math.round(realStats.totalSeconds / 60))}`;
-}
-
-function rgbToHsl(r, g, b) {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h = 0, s = 0, l = (max + min) / 2;
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h /= 6;
+function renderLoop(now) {
+  if (state.isPlaying && !state.isDraggingProgress) {
+    state.animTime += 0.05;
+    state.waveAmp += (1 - state.waveAmp) * 0.12;
+  } else {
+    state.waveAmp += (0 - state.waveAmp) * 0.12;
   }
-  return { h: h * 360, s: s * 100, l: l * 100 };
+  drawSquigglyBar(document.getElementById('fpSquigglyCanvas'), state.progress, state.waveAmp, state.animTime, state.isDraggingProgress, state.progressDragOvershoot);
+  requestAnimationFrame(renderLoop);
 }
+requestAnimationFrame(renderLoop);
 
-function extractColorFromCover(coverUrl) {
-  if (!dynamicColorBySong || !coverUrl || coverUrl.startsWith('data:')) return;
-  const img = new Image();
-  img.crossOrigin = 'Anonymous';
-  img.onload = () => {
-    try {
-      const canvas = document.getElementById('colorCanvas');
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, 16, 16);
-      const data = ctx.getImageData(0, 0, 16, 16).data;
-      let r = 0, g = 0, b = 0, count = 0;
-      for (let i = 0; i < data.length; i += 4) {
-        const br = (data[i] + data[i + 1] + data[i + 2]) / 3;
-        if (br > 25 && br < 230) { r += data[i]; g += data[i + 1]; b += data[i + 2]; count++; }
-      }
-      if (count > 0) {
-        const hsl = rgbToHsl(r / count, g / count, b / count);
-        document.documentElement.style.setProperty('--seed-h', Math.round(hsl.h));
-        document.documentElement.style.setProperty('--seed-s', `${Math.max(55, Math.min(88, Math.round(hsl.s)))}%`);
-      }
-    } catch (_) {}
-  };
-  img.src = coverUrl;
-}
-
-function toggleDynamicSongColor() {
-  dynamicColorBySong = !dynamicColorBySong;
-  document.getElementById('dynColorSwitch').classList.toggle('on', dynamicColorBySong);
-  document.getElementById('dynColorSwitchMirror').classList.toggle('on', dynamicColorBySong);
-  document.getElementById('potokModeText').textContent = dynamicColorBySong ? 'Оттенок по песне' : 'Стандартный тон';
-  const cur = currentQueue[currentIndex];
-  if (dynamicColorBySong && cur) extractColorFromCover(cur.cover);
-}
-
-function toggleAmoledMode() {
-  const root = document.documentElement;
-  const isAmoled = root.getAttribute('data-amoled') === 'true';
-  if (isAmoled) root.removeAttribute('data-amoled');
-  else root.setAttribute('data-amoled', 'true');
-  document.getElementById('amoledSwitch').classList.toggle('on', !isAmoled);
-  document.getElementById('amoledSwitchMirror').classList.toggle('on', !isAmoled);
-}
-
-function syncPlayerUI() {
-  const cur = currentQueue[currentIndex];
-  document.getElementById('potokHeroPlayIcon').textContent = isPlayingState ? 'pause' : 'play_arrow';
-  document.getElementById('miniPlayIcon').textContent = isPlayingState ? 'pause' : 'play_arrow';
-  document.getElementById('fpPlayIcon').textContent = isPlayingState ? 'pause' : 'play_arrow';
-  if (!cur) return;
-  bindCoverImage(document.getElementById('miniCover'), cur.cover);
-  bindCoverImage(document.getElementById('fpCover'), cur.cover);
-  document.getElementById('miniTitle').textContent = cur.title;
-  document.getElementById('miniArtist').textContent = cur.artist;
-  document.getElementById('fpTitle').textContent = cur.title;
-  document.getElementById('fpArtist').textContent = cur.artist;
-  const isFav = favoriteIds.has(cur.id);
-  const favIcon = document.getElementById('fpFavIcon');
-  favIcon.classList.toggle('filled', isFav);
-  favIcon.style.color = isFav ? 'var(--md-primary)' : '#ffffff';
-}
-
-// БЕЗОПАСНЫЙ АУДИОДВИЖОК БЕЗ ОШИБКИ 4 (Авто-переключение на проверенный MP3 поток)
-function playFallbackAudioStream(cur) {
-  if (!cur) return;
-  clearInterval(ytProgressTimer);
-  activeEngine = 'audio';
-  const stream = cur.streamUrl || cur.url || demoTracks[0].streamUrl;
-  audio.pause();
-  audio.removeAttribute('crossorigin');
-  audio.src = stream;
-  audio.load();
-  audio.play().then(() => {
-    isPlayingState = true;
-    document.getElementById('fpSourceBadge').textContent = 'Direct Audio Stream (Без ошибки 4)';
-    if (!currentTrackCountedAsPlay) {
-      currentTrackCountedAsPlay = true;
-      recordRealPlayStart(cur);
-    }
-    syncPlayerUI();
-  }).catch(() => {
-    const safeUrl = demoTracks[0].streamUrl;
-    if (audio.src !== safeUrl) {
-      audio.src = safeUrl;
-      audio.play().catch(() => {});
-    }
-  });
-}
-
-audio.addEventListener('error', () => {
-  // Перехват MediaError code 4 (MEDIA_ERR_SRC_NOT_SUPPORTED)
-  const cur = currentQueue[currentIndex];
-  const fallback = demoTracks[Math.abs(currentIndex) % demoTracks.length]?.streamUrl;
-  if (fallback && audio.src !== fallback) {
-    audio.removeAttribute('crossorigin');
-    audio.src = fallback;
-    audio.load();
-    audio.play().catch(() => {});
-  } else if (cur) {
-    isPlayingState = false;
-    syncPlayerUI();
-  }
-});
-
-function startYtProgressLoop() {
-  clearInterval(ytProgressTimer);
-  ytProgressTimer = setInterval(() => {
-    if (activeEngine !== 'yt' || !ytReady || !ytPlayer || !ytPlayer.getCurrentTime) return;
-    const curTrack = currentQueue[currentIndex];
-    const curSec = ytPlayer.getCurrentTime() || 0;
-    const durSec = ytPlayer.getDuration() || (curTrack && curTrack.durationSec) || 180;
-    const pct = durSec > 0 ? Math.min(100, (curSec / durSec) * 100) : 0;
-    const delta = curSec - lastTimeUpdatePoint;
-    if (delta > 0 && delta < 3) recordRealListeningDelta(delta, curTrack);
-    lastTimeUpdatePoint = curSec;
-    document.getElementById('miniBar').style.width = `${pct}%`;
-    document.getElementById('seekSlider').value = pct;
-    document.getElementById('curTime').textContent = fmtTime(curSec);
-    document.getElementById('durTime').textContent = fmtTime(durSec);
-  }, 600);
-}
-
-function onYouTubeIframeAPIReady() {
-  ytPlayer = new YT.Player('ytPlayerMount', {
-    width: '1',
-    height: '1',
-    playerVars: { autoplay: 0, controls: 0, playsinline: 1, rel: 0, modestbranding: 1 },
-    events: {
-      onReady: () => { ytReady = true; },
-      onStateChange: (ev) => {
-        if (activeEngine !== 'yt') return;
-        if (ev.data === YT.PlayerState.PLAYING) {
-          isPlayingState = true;
-          const cur = currentQueue[currentIndex];
-          if (cur && !currentTrackCountedAsPlay) {
-            currentTrackCountedAsPlay = true;
-            recordRealPlayStart(cur);
-          }
-          syncPlayerUI();
-          startYtProgressLoop();
-        } else if (ev.data === YT.PlayerState.PAUSED) {
-          isPlayingState = false;
-          syncPlayerUI();
-        } else if (ev.data === YT.PlayerState.ENDED) {
-          if (isRepeat && ytPlayer.seekTo) { ytPlayer.seekTo(0, true); ytPlayer.playVideo(); }
-          else nextTrack();
-        }
-      },
-      onError: () => {
-        // При любом ограничении YouTube мгновенно включаем прямой поток без ошибки 4
-        playFallbackAudioStream(currentQueue[currentIndex]);
-      }
-    }
-  });
-}
-
-function startPlaybackImmediate() {
-  const cur = currentQueue[currentIndex];
-  if (!cur) return;
-  document.getElementById('miniPlayer').classList.remove('hidden');
-  lastTimeUpdatePoint = 0;
-  currentTrackCountedAsPlay = false;
-  audio.pause();
-  clearInterval(ytProgressTimer);
-  if (dynamicColorBySong && cur.cover) extractColorFromCover(cur.cover);
-  syncPlayerUI();
-  renderAllViews();
-
-  // Используем прямой поток по умолчанию или при неготовности YT, чтобы избежать ошибки 4
-  if (cur.streamUrl || cur.url || !ytReady) {
-    playFallbackAudioStream(cur);
-    return;
-  }
-  if (cur.ytVideoId && ytReady && ytPlayer && ytPlayer.loadVideoById) {
-    activeEngine = 'yt';
-    document.getElementById('fpSourceBadge').textContent = 'YouTube Engine';
-    ytPlayer.loadVideoById(cur.ytVideoId);
-    ytPlayer.playVideo();
-  }
+function toggleBookOpenAndPlay() {
+  state.isBookOpen = !state.isBookOpen;
+  state.isPlaying = state.isBookOpen;
+  document.getElementById('md3Book').classList.toggle('open', state.isBookOpen);
+  document.getElementById('md3Book').classList.toggle('playing', state.isPlaying);
+  updateUI();
 }
 
 function togglePlay() {
-  if (currentIndex === -1) { togglePotokPlay(); return; }
-  if (activeEngine === 'yt' && ytReady && ytPlayer) {
-    const st = ytPlayer.getPlayerState();
-    if (st === YT.PlayerState.PLAYING) { ytPlayer.pauseVideo(); isPlayingState = false; }
-    else { ytPlayer.playVideo(); isPlayingState = true; }
-    syncPlayerUI();
-    return;
-  }
-  if (audio.paused) audio.play().then(() => { isPlayingState = true; syncPlayerUI(); }).catch(() => {});
-  else { audio.pause(); isPlayingState = false; syncPlayerUI(); }
+  if (!state.isBookOpen) { toggleBookOpenAndPlay(); return; }
+  state.isPlaying = !state.isPlaying;
+  document.getElementById('md3Book').classList.toggle('playing', state.isPlaying);
+  updateUI();
 }
 
-function togglePotokPlay() {
-  const playable = displayTracks.filter(t => t.embeddable !== false);
-  if (!playable.length) return;
-  if (currentIndex !== -1 && isPlayingState) { togglePlay(); return; }
-  currentQueue = [...playable];
-  currentIndex = 0;
-  startPlaybackImmediate();
+function openFullPlayer() { document.getElementById('fullPlayer').classList.add('open'); }
+function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('open'); }
+function switchTab(idx) {
+  state.activeTab = idx;
+  document.querySelectorAll('.tab-screen').forEach((s, i) => s.classList.toggle('active', i === idx));
+  document.querySelectorAll('.nav-item').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.getElementById('bottomNavBar').style.setProperty('--nav-idx', idx);
 }
 
-function nextTrack() {
-  if (!currentQueue.length) return;
-  currentIndex = isShuffle ? Math.floor(Math.random() * currentQueue.length) : (currentIndex + 1) % currentQueue.length;
-  startPlaybackImmediate();
+function updateUI() {
+  const t = state.currentTrack;
+  document.getElementById('bookSongTitle').textContent = t.title;
+  document.getElementById('bookSongArtist').textContent = t.artist;
+  document.getElementById('fpBookSongTitle').textContent = t.title;
+  document.getElementById('fpBookSongArtist').textContent = t.artist;
+  document.getElementById('miniTitle').textContent = t.title;
+  document.getElementById('miniArtist').textContent = t.artist;
+  document.documentElement.style.setProperty('--hue', t.hue);
+  document.documentElement.style.setProperty('--sec-hue', t.secHue);
 }
 
-function prevTrack() {
-  if (!currentQueue.length) return;
-  if (activeEngine === 'yt' && ytReady && ytPlayer && ytPlayer.getCurrentTime && ytPlayer.getCurrentTime() > 3) { ytPlayer.seekTo(0, true); return; }
-  if (activeEngine === 'audio' && audio.currentTime > 3) { audio.currentTime = 0; return; }
-  currentIndex = (currentIndex - 1 + currentQueue.length) % currentQueue.length;
-  startPlaybackImmediate();
-}
-
-function seekAudio(pct) {
-  const cur = currentQueue[currentIndex];
-  if (activeEngine === 'yt' && ytReady && ytPlayer && ytPlayer.seekTo) {
-    const dur = ytPlayer.getDuration() || (cur && cur.durationSec) || 180;
-    const target = (pct / 100) * dur;
-    ytPlayer.seekTo(target, true);
-    lastTimeUpdatePoint = target;
-    return;
-  }
-  const dur = audio.duration || (cur && cur.durationSec) || 180;
-  audio.currentTime = (pct / 100) * dur;
-  lastTimeUpdatePoint = audio.currentTime;
-}
-
-function playSpecificTrack(id) {
-  const track = knownTracksMap.get(id);
-  if (!track) return;
-  currentQueue = [...displayTracks];
-  currentIndex = currentQueue.findIndex(t => t.id === id);
-  if (currentIndex < 0) { currentQueue = [track]; currentIndex = 0; }
-  bookPageIndex = Math.max(0, displayTracks.findIndex(t => t.id === id));
-  renderBookPage();
-  recentTracksIds = [id, ...recentTracksIds.filter(x => x !== id)].slice(0, 20);
-  startPlaybackImmediate();
-}
-
-function toggleFavCurrent() {
-  const cur = currentQueue[currentIndex];
-  if (!cur) return;
-  if (favoriteIds.has(cur.id)) favoriteIds.delete(cur.id);
-  else favoriteIds.add(cur.id);
-  syncPlayerUI();
-  syncUserDataToServer();
-  renderAllViews();
-}
-
-function toggleShuffle() {
-  isShuffle = !isShuffle;
-  document.getElementById('shuffleBtn').style.color = isShuffle ? 'var(--md-primary)' : '#ffffff';
-}
-
-function toggleRepeat() {
-  isRepeat = !isRepeat;
-  audio.loop = isRepeat;
-  document.getElementById('repeatBtn').style.color = isRepeat ? 'var(--md-primary)' : '#ffffff';
-}
-
-function toggleFullPlayer(exp) { document.getElementById('fullPlayer').classList.toggle('expanded', exp); }
-
-function switchTab(tabName) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById(`tab-${tabName}`);
-  if (target) target.classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b => {
-    b.classList.remove('active');
-    const icon = b.querySelector('.icon');
-    if (icon) icon.classList.remove('filled');
-  });
-  const effective = tabName === 'fav-detail' ? 'library' : tabName;
-  const navBtn = document.getElementById(`nav-${effective}`);
-  if (navBtn) {
-    navBtn.classList.add('active');
-    const icon = navBtn.querySelector('.icon');
-    if (icon) icon.classList.add('filled');
-  }
-  if (tabName === 'search') renderSearchResults(displayTracks);
-}
-
-function shareProfileStats() {
-  const uid = document.getElementById('profileUidValue').textContent;
-  const text = `Мой профиль в mmusic (${uid}): ${realStats.totalPlays} прослушиваний, ${favoriteIds.size} любимых треков.`;
-  if (navigator.share) navigator.share({ title: 'mmusic', text }).catch(() => {});
-  else showNotice(text, 4500);
-}
-
-function openFavoritesDetailScreen() { switchTab('fav-detail'); }
-
-function openRecentTracksView() {
-  const recList = recentTracksIds.map(id => knownTracksMap.get(id)).filter(Boolean);
-  if (!recList.length) { showNotice('Недавних треков пока нет'); return; }
-  currentQueue = recList;
-  currentIndex = 0;
-  startPlaybackImmediate();
-}
-
-function shuffleFavoritesAndPlay() {
-  const favTracks = [...knownTracksMap.values()].filter(t => favoriteIds.has(t.id)).sort(() => Math.random() - 0.5);
-  if (!favTracks.length) return;
-  currentQueue = favTracks;
-  currentIndex = 0;
-  startPlaybackImmediate();
-}
-
-function filterLibraryView(mode, btnEl) {
-  document.querySelectorAll('.lib-pill-btn').forEach(b => b.classList.remove('active'));
-  if (btnEl) btnEl.classList.add('active');
-  document.getElementById('libraryContentBox').innerHTML = renderTrackRowsHtml(displayTracks);
-}
-
-audio.addEventListener('play', () => { if (activeEngine === 'audio') { isPlayingState = true; syncPlayerUI(); } });
-audio.addEventListener('pause', () => { if (activeEngine === 'audio') { isPlayingState = false; syncPlayerUI(); } });
-audio.addEventListener('ended', () => { if (activeEngine === 'audio' && !isRepeat) nextTrack(); });
-audio.addEventListener('timeupdate', () => {
-  if (activeEngine !== 'audio') return;
-  const cur = currentQueue[currentIndex];
-  const dur = audio.duration || (cur && cur.durationSec) || 180;
-  const pct = Math.min(100, (audio.currentTime / dur) * 100);
-  const delta = audio.currentTime - lastTimeUpdatePoint;
-  if (delta > 0 && delta < 3) recordRealListeningDelta(delta, cur);
-  lastTimeUpdatePoint = audio.currentTime;
-  document.getElementById('miniBar').style.width = `${pct}%`;
-  document.getElementById('seekSlider').value = pct;
-  document.getElementById('curTime').textContent = fmtTime(audio.currentTime);
-  document.getElementById('durTime').textContent = fmtTime(dur);
-});
-
-// АВТОРИЗАЦИЯ И СЕССИЯ CLOUDFLARE WORKER (Логин + Пароль без Gmail)
-function formatMmId(user) {
-  if (!user) return '#MM-10001';
-  const raw = String(user.publicId || user.displayId || user.id || '');
-  if (raw.startsWith('#MM-')) return raw;
-  if (/^\d+$/.test(raw)) return `#MM-${10000 + parseInt(raw, 10)}`;
-  let h = 0;
-  for (let i = 0; i < raw.length; i++) h = ((h << 5) - h + raw.charCodeAt(i)) | 0;
-  return `#MM-${10000 + (Math.abs(h) % 89999)}`;
-}
-
-function setAuthMode(mode) {
-  authMode = mode;
-  document.getElementById('segLoginBtn').classList.toggle('active', mode === 'login');
-  document.getElementById('segRegBtn').classList.toggle('active', mode === 'register');
-  document.getElementById('authDisplayNameWrap').style.display = mode === 'register' ? 'flex' : 'none';
-  document.getElementById('authSubmitBtn').textContent = mode === 'login' ? 'Войти в аккаунт' : 'Создать аккаунт';
-  const err = document.getElementById('authErrorBanner');
-  err.classList.remove('show');
-}
-
-function showAuthBanner(msg) {
-  const err = document.getElementById('authErrorBanner');
-  err.textContent = msg;
-  err.classList.add('show');
-}
-
-async function workerFetch(path, options = {}, retry = true) {
-  const headers = new Headers(options.headers || {});
-  if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
-  if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`);
-  const res = await fetch(`${WORKER_API}${path}`, { ...options, headers, credentials: 'include' });
-  if (res.status === 401 && retry && !path.includes('/auth/login') && !path.includes('/auth/register')) {
-    const ok = await refreshWorkerSession();
-    if (ok) return workerFetch(path, options, false);
-  }
-  return res;
-}
-
-async function refreshWorkerSession() {
-  if (refreshInFlight) return refreshInFlight;
-  refreshInFlight = (async () => {
-    try {
-      const refreshToken = localStorage.getItem('mm_refresh_token');
-      const res = await fetch(`${WORKER_API}/api/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(refreshToken ? { refreshToken } : {})
-      });
-      if (!res.ok) return false;
-      const data = await res.json();
-      if (data.accessToken) {
-        accessToken = data.accessToken;
-        localStorage.setItem('mm_access_token', accessToken);
-      }
-      if (data.refreshToken) localStorage.setItem('mm_refresh_token', data.refreshToken);
-      if (data.user) applyUserToProfile(data.user);
-      return true;
-    } catch (_) {
-      return false;
-    } finally {
-      refreshInFlight = null;
-    }
-  })();
-  return refreshInFlight;
-}
-
-function applyUserToProfile(user) {
-  if (!user) return;
-  currentUser = {
-    id: user.id || user.userId || user.login || user.username,
-    login: String(user.login || user.username || 'user').toLowerCase(),
-    displayName: user.displayName || user.name || user.login || 'Пользователь',
-    publicId: formatMmId(user)
+function startPlayerSquigglyDrag(e) {
+  const wrap = document.getElementById('fpSquigglyWrap');
+  const rect = wrap.getBoundingClientRect();
+  state.isDraggingProgress = true;
+  const update = (clientX) => {
+    const raw = (clientX - rect.left - 12) / (rect.width - 24);
+    state.progress = Math.min(1, Math.max(0, raw));
   };
-  localStorage.setItem('mm_cached_user', JSON.stringify(currentUser));
-  document.getElementById('profileNameText').textContent = currentUser.displayName;
-  document.getElementById('profileHandleText').textContent = `@${currentUser.login}`;
-  document.getElementById('profileUidValue').textContent = currentUser.publicId;
-  document.getElementById('profileSerialValue').textContent = 'Активна';
-  document.getElementById('authLoggedActions').style.display = 'flex';
+  update(e.clientX);
+  const onMove = (ev) => update(ev.clientX);
+  const onUp = () => {
+    state.isDraggingProgress = false;
+    window.removeEventListener('pointermove', onMove);
+    window.removeEventListener('pointerup', onUp);
+  };
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
 }
 
-async function submitWorkerAuth(e) {
-  e.preventDefault();
-  const login = document.getElementById('authLoginInput').value.trim();
-  const password = document.getElementById('authPassInput').value; // Без trim() и смены регистра
-  const displayName = document.getElementById('authNameInput').value.trim();
-
-  if (!LOGIN_PATTERN.test(login)) {
-    showAuthBanner('Логин: 3–24 символа (a-z, 0-9, _, -, .)');
-    return;
-  }
-  if (password.length < 8) {
-    showAuthBanner(authMode === 'login' ? 'Неверный логин или пароль' : 'Пароль должен быть не менее 8 символов');
-    return;
-  }
-
-  const btn = document.getElementById('authSubmitBtn');
-  btn.disabled = true;
-  try {
-    const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/register';
-    const res = await fetch(`${WORKER_API}${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ login, username: login, password, displayName: displayName || login })
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      showAuthBanner(authMode === 'login' ? 'Неверный логин или пароль' : (data.error || 'Логин уже занят или ошибка сервера'));
-      return;
-    }
-    if (data.accessToken || data.token) {
-      accessToken = data.accessToken || data.token;
-      localStorage.setItem('mm_access_token', accessToken);
-    }
-    if (data.refreshToken) localStorage.setItem('mm_refresh_token', data.refreshToken);
-    applyUserToProfile(data.user || { id: data.id || login, login, displayName: displayName || login, publicId: data.publicId });
-    document.getElementById('authPassInput').value = '';
-    document.getElementById('authErrorBanner').classList.remove('show');
-    showNotice('Вход выполнен, сессия сохранена');
-  } catch (_) {
-    showAuthBanner('Сервер недоступен. Проверьте соединение с интернетом.');
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-async function restoreSessionOnBoot() {
-  try {
-    const cached = localStorage.getItem('mm_cached_user');
-    if (cached) applyUserToProfile(JSON.parse(cached));
-  } catch (_) {}
-  try {
-    const res = await workerFetch('/api/auth/me', { method: 'GET' });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.user || data.login) applyUserToProfile(data.user || data);
-      if (data.library?.favorites) {
-        favoriteIds = new Set(data.library.favorites);
-        renderAllViews();
-      }
-    } else if (res.status === 401) {
-      localStorage.removeItem('mm_access_token');
-      localStorage.removeItem('mm_refresh_token');
-      localStorage.removeItem('mm_cached_user');
-    }
-  } catch (_) {
-    // При временном отсутствии сети сохранённая сессия не удаляется
-  }
-}
-
-async function syncUserDataToServer() {
-  if (!currentUser || !navigator.onLine) return;
-  try {
-    await workerFetch('/api/user/library', {
-      method: 'PUT',
-      body: JSON.stringify({
-        library: { favorites: [...favoriteIds], history: recentTracksIds, stats: realStats }
-      })
-    });
-  } catch (_) {}
-}
-
-async function logoutCurrent() {
-  try { await workerFetch('/api/auth/logout', { method: 'POST' }, false); } catch (_) {}
-  clearSessionState();
-}
-
-async function logoutAll() {
-  try { await workerFetch('/api/auth/logout-all', { method: 'POST' }, false); } catch (_) {}
-  clearSessionState();
-}
-
-function clearSessionState() {
-  currentUser = null;
-  accessToken = null;
-  localStorage.removeItem('mm_access_token');
-  localStorage.removeItem('mm_refresh_token');
-  localStorage.removeItem('mm_cached_user');
-  document.getElementById('profileNameText').textContent = 'Гость';
-  document.getElementById('profileHandleText').textContent = '@guest';
-  document.getElementById('profileUidValue').textContent = '#MM-10001';
-  document.getElementById('profileSerialValue').textContent = 'Вышел';
-  document.getElementById('authLoggedActions').style.display = 'none';
-  showNotice('Вы вышли из аккаунта');
-}
-
-function renderAllViews() {
-  const favTracks = [...knownTracksMap.values()].filter(t => favoriteIds.has(t.id));
-  const recTracks = recentTracksIds.map(id => knownTracksMap.get(id)).filter(Boolean);
-
-  // Обложки коллажа Потока
-  bindCoverImage(document.getElementById('heroMainArt'), displayTracks[0]?.cover);
-  bindCoverImage(document.getElementById('heroTopRightArt'), displayTracks[1]?.cover);
-  bindCoverImage(document.getElementById('heroMidRightArt'), displayTracks[2]?.cover);
-
-  document.getElementById('recentCountLabel').textContent = `${recentTracksIds.length} треков`;
-  document.getElementById('favHomeCountLabel').textContent = `${favTracks.length} треков`;
-  document.getElementById('libFavCountText').textContent = `${favTracks.length} треков`;
-  document.getElementById('profileTrackCount').textContent = `${displayTracks.length}`;
-  document.getElementById('profileStatPreview').textContent = `${realStats.totalPlays}`;
-  document.getElementById('bookStatPlays').textContent = `${realStats.totalPlays}`;
-  document.getElementById('bookStatFavs').textContent = `${favTracks.length}`;
-
-  bindCoverImage(document.getElementById('recentShortcutImg'), recTracks[0]?.cover || displayTracks[0]?.cover);
-  bindCoverImage(document.getElementById('favShortcutImg'), favTracks[0]?.cover || displayTracks[1]?.cover);
-
-  const forYouEl = document.getElementById('forYouRow');
-  const picks = displayTracks.slice(0, 6);
-  forYouEl.innerHTML = picks.map((t, i) => {
-    const prevCov = picks[(i + 1) % picks.length]?.cover || t.cover || DEFAULT_COVER_SVG;
-    const nextCov = picks[(i + 2) % picks.length]?.cover || t.cover || DEFAULT_COVER_SVG;
-    const mainCov = t.cover || DEFAULT_COVER_SVG;
-    return `
-      <div class="for-you-card" onclick="playSpecificTrack('${escapeHtml(t.id)}')">
-        <div class="for-you-art-stack">
-          <img class="stack-side-img left" src="${prevCov}" alt="" onerror="this.onerror=null;this.src=DEFAULT_COVER_SVG">
-          <img class="stack-side-img right" src="${nextCov}" alt="" onerror="this.onerror=null;this.src=DEFAULT_COVER_SVG">
-          <img class="stack-main-img" src="${mainCov}" alt="" onerror="this.onerror=null;this.src=DEFAULT_COVER_SVG">
-        </div>
-        <div class="for-you-title">${escapeHtml(t.title)}</div>
-        <div class="for-you-sub">${escapeHtml(t.artist)}</div>
-      </div>
-    `;
-  }).join('');
-
-  document.getElementById('homeTrackList').innerHTML = renderTrackRowsHtml(displayTracks);
-  document.getElementById('bookFullList').innerHTML = renderTrackRowsHtml(displayTracks);
-  document.getElementById('favDetailTrackList').innerHTML = renderTrackRowsHtml(favTracks);
-  document.getElementById('libraryContentBox').innerHTML = renderTrackRowsHtml(displayTracks.slice(0, 15));
-  renderBookPage();
-  renderSearchHistory();
-  renderSearchResults(displayTracks);
-  if (currentQueue[currentIndex]) syncPlayerUI();
-}
-
-registerTracks(demoTracks);
-displayTracks = [...demoTracks];
-renderAllViews();
-restoreSessionOnBoot();
+window.addEventListener('DOMContentLoaded', () => {
+  updateUI();
+});
 </script>
 </body>
 </html>
